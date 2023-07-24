@@ -1,4 +1,6 @@
 *.xdm
 *.xlsx
+*.log
 echo "*.xdm" >> .gitignore
 echo "*.xlsx" >> .gitignore
+echo "*.log" >> .gitignore
