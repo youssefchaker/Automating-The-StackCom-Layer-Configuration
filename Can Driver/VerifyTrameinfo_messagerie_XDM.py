@@ -117,7 +117,7 @@ excel_file_entry.grid(row=0, column=1, padx=5, pady=5)
 excel_file_button = tk.Button(frame, text="Browse", command=browse_excel)
 excel_file_button.grid(row=0, column=2, padx=5, pady=5)
 
-xdm_file_label = tk.Label(frame, text="Select XDM File:")
+xdm_file_label = tk.Label(frame, text="Select CAN.xdm File:")
 xdm_file_label.grid(row=1, column=0, padx=5, pady=5)
 
 xdm_file_entry = tk.Entry(frame)
