@@ -1,2 +1,4 @@
 *.xdm
 *.xlsx
+echo "*.xdm" >> .gitignore
+echo "*.xlsx" >> .gitignore
