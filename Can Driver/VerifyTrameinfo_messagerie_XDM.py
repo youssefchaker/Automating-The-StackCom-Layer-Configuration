@@ -26,14 +26,15 @@ def extract_CanValues(xdm_file, frame_name):
         CanIdType = ctr_elements[0].xpath("string(d:var[@name='CanIdType']/@value)", namespaces=namespace)
         CanHandleType = ctr_elements[0].xpath("string(d:var[@name='CanHandleType']/@value)", namespaces=namespace)
         CanControllerRef = ctr_elements[0].xpath("string(d:ref[@name='CanControllerRef']/@value)", namespaces=namespace)
+        CanControllerRef = ctr_elements[0].xpath("string(d:ref[@name='CanControllerRef']/@value)", namespaces=namespace)
     else:
         CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef = None, None, None, None, None
 
     return CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef
 
 #verify the frame attributes from the excel file with the attributes from the .xdm file
-def verify_frame(excel_file_path, xdm_file_path, signal_name):
-    CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef = extract_CanValues(xdm_file_path, signal_name)
+def verify_frame(excel_file_path, xdm_file_path, frame_name):
+    CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef = extract_CanValues(xdm_file_path, frame_name)
     if CanIdValue is None or CanObjectType is None or CanIdType is None or CanHandleType is None or CanControllerRef is None:
         result_label.config(text="Frame Not Found in Can.xdm File", fg="red")
         can_id_value_label.config(text="")
@@ -50,7 +51,7 @@ def verify_frame(excel_file_path, xdm_file_path, signal_name):
         return
 
     frames_data = cleanExcelData(excel_file_path)
-    selected_frame = frames_data[frames_data['Radical'] == signal_name]
+    selected_frame = frames_data[frames_data['Radical'] == frame_name]
 
     if selected_frame.empty:
         result_label.config(text="Frame Not Found in Messagerie.", fg="red")
@@ -58,14 +59,21 @@ def verify_frame(excel_file_path, xdm_file_path, signal_name):
         return
 
     identifiant_t_hex = selected_frame["Identifiant_T"].values[0]
+    identifiant_t_decimal = int(identifiant_t_hex, 16)
+    # Check if the radical column value matches Identifiant_T decimal value
+    if identifiant_t_decimal == CanIdValue:
+        pass
+    else:
+        result_label.config(text="Fail (Radical column value does not match Identifiant_T decimal value).", fg="red")
+        can_id_value_label.config(text="")
+        return
     try:
-        identifiant_t_decimal = int(identifiant_t_hex, 16)
 
-        if "/Can/Can/CanConfigSet_0/CAN_1" in CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS1"):
+        if "/Can/Can/CanConfigSet_0/CAN_1" in CanControllerRef and selected_frame["AEE10r3 Reseau_T"].strip().values[0].startswith("HS1"):
             pass
-        elif "/Can/Can/CanConfigSet_0/CAN_2" in CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS2"):
+        elif "/Can/Can/CanConfigSet_0/CAN_2" in CanControllerRef and selected_frame["AEE10r3 Reseau_T"].strip().values[0].startswith("HS2"):
             pass
-        elif "/Can/Can/CanConfigSet_0/CAN_3" in CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("E_CAN"):
+        elif "/Can/Can/CanConfigSet_0/CAN_3" in CanControllerRef and selected_frame["AEE10r3 Reseau_T"].strip().values[0].startswith("E_CAN"):
             pass
         else:
             result_label.config(text="Fail (Incorrect CanControllerRef/AEE10r3 Reseau_T association).", fg="red")
@@ -75,9 +83,9 @@ def verify_frame(excel_file_path, xdm_file_path, signal_name):
         result_label.config(text="Confirmed", fg="green")
         can_id_value_label.config(text=f"CanObjectType : {CanObjectType}\n CanIdType : {CanIdType}\n CanHandleType : {CanHandleType}\n CanIdValue : {CanIdValue}\n CanControllerRef : {selected_frame['AEE10r3 Reseau_T'].values[0]}\n")
 
-    except ValueError:
-        result_label.config(text="Invalid Identifiant_T format.", fg="red")
-        can_id_value_label.config(text="")
+    except Exception as e:
+        logging.error(f"Error occurred : {e}")
+        return False
 
 #select the excel file from the interface
 def browse_excel():
@@ -117,7 +125,7 @@ excel_file_entry.grid(row=0, column=1, padx=5, pady=5)
 excel_file_button = tk.Button(frame, text="Browse", command=browse_excel)
 excel_file_button.grid(row=0, column=2, padx=5, pady=5)
 
-xdm_file_label = tk.Label(frame, text="Select CAN.xdm File:")
+xdm_file_label = tk.Label(frame, text="Select Can File:")
 xdm_file_label.grid(row=1, column=0, padx=5, pady=5)
 
 xdm_file_entry = tk.Entry(frame)

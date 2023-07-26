@@ -15,23 +15,26 @@ def ordered_by_RX_TX(xdm_file):
         root = etree.fromstring(xml_content)
         ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
 
-        last_receive_frame_index = next((i for i, ctr in enumerate(ctr_elements) if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "RECEIVE"), None)
+        receive_indices = [i for i, ctr in enumerate(ctr_elements) if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "RECEIVE"]
+        transmit_indices = [i for i, ctr in enumerate(ctr_elements) if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "TRANSMIT"]
 
-        first_transmit_frame_index = next((i for i, ctr in enumerate(ctr_elements) if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "TRANSMIT"), None)
-
-        if last_receive_frame_index is not None and first_transmit_frame_index is not None:
-            if last_receive_frame_index > first_transmit_frame_index:
-                frame_name = ctr_elements[first_transmit_frame_index].attrib['name']
-                logging.error(f"Received frame '{frame_name}' comes after the first transmit frame.")
+        if receive_indices and transmit_indices:
+            if receive_indices[-1] > transmit_indices[0]:
+                frame_name = ctr_elements[transmit_indices[0]].attrib['name']
+                logging.error(f"TRANSMIT frame '{frame_name}' comes before a RECEIVE frame.")
                 return False
 
-            return True
-        else:
-            return False
+            if any(ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "RECEIVE" for ctr in ctr_elements[transmit_indices[-1] + 1:]):
+                frame_name = ctr_elements[transmit_indices[-1]].attrib['name']
+                logging.error(f"RECEIVE frame '{frame_name}' comes after a TRANSMIT frame.")
+                return False
+
+        return True
 
     except Exception as e:
         logging.error(f"Error occurred while processing the XDM file: {e}")
         return False
+
 #Ordering by Cancontrollerref
 def ordered_by_CAN_Ref(xdm_file):
     expected_order = ['CAN_2', 'CAN_1', 'CAN_DEVAID', 'CAN_3']
@@ -42,11 +45,11 @@ def ordered_by_CAN_Ref(xdm_file):
         root = etree.fromstring(xml_content)
         ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
 
-        prev_index = None
-        for i, ctr in enumerate(ctr_elements):
-            ref_value = ctr.xpath("string(d:ref[@name='CanControllerRef']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
-            if any(ref in ref_value for ref in expected_order):
-                index = next((j for j, val in enumerate(expected_order) if val in ref_value), None)
+        def check_order(frames):
+            prev_index = None
+            for ctr in frames:
+                ref_value = ctr.xpath("string(d:ref[@name='CanControllerRef']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
+                index = next((i for i, val in enumerate(expected_order) if val in ref_value), None)
                 if index is not None:
                     if prev_index is not None and index < prev_index:
                         frame_name = ctr.attrib['name']
@@ -57,12 +60,20 @@ def ordered_by_CAN_Ref(xdm_file):
                     frame_name = ctr.attrib['name']
                     logging.error(f"The frame '{frame_name}' has an invalid 'CanControllerRef' attribute.")
                     return False
+            return True
 
-        return True
+        receive_frames = [ctr for ctr in ctr_elements if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "RECEIVE"]
+        transmit_frames = [ctr for ctr in ctr_elements if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "TRANSMIT"]
+
+        receive_order_check = check_order(receive_frames)
+        transmit_order_check = check_order(transmit_frames)
+
+        return receive_order_check and transmit_order_check
 
     except Exception as e:
         logging.error(f"Error occurred while processing the XDM file: {e}")
         return False
+
 
 
 #Ordering by CanObjectId
