@@ -26,7 +26,7 @@ def extract_CanValues(xdm_file, frame_name):
         CanIdType = ctr_elements[0].xpath("string(d:var[@name='CanIdType']/@value)", namespaces=namespace)
         CanHandleType = ctr_elements[0].xpath("string(d:var[@name='CanHandleType']/@value)", namespaces=namespace)
         CanControllerRef = ctr_elements[0].xpath("string(d:ref[@name='CanControllerRef']/@value)", namespaces=namespace)
-        CanControllerRef = ctr_elements[0].xpath("string(d:ref[@name='CanControllerRef']/@value)", namespaces=namespace)
+        
     else:
         CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef = None, None, None, None, None
 
