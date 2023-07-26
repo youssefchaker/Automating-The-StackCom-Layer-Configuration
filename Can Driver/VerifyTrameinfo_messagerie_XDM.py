@@ -35,7 +35,7 @@ def extract_CanValues(xdm_file, frame_name):
 def verify_frame(excel_file_path, xdm_file_path, signal_name):
     CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef = extract_CanValues(xdm_file_path, signal_name)
     if CanIdValue is None or CanObjectType is None or CanIdType is None or CanHandleType is None or CanControllerRef is None:
-        result_label.config(text="Frame Not Found", fg="red")
+        result_label.config(text="Frame Not Found in Can.xdm File", fg="red")
         can_id_value_label.config(text="")
         return
 
@@ -53,7 +53,7 @@ def verify_frame(excel_file_path, xdm_file_path, signal_name):
     selected_frame = frames_data[frames_data['Radical'] == signal_name]
 
     if selected_frame.empty:
-        result_label.config(text="Frame Id Mismatch.", fg="red")
+        result_label.config(text="Frame Not Found in Messagerie.", fg="red")
         can_id_value_label.config(text="")
         return
 
