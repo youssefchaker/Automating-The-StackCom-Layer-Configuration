@@ -26,15 +26,15 @@ def extract_CanValues(xdm_file, frame_name):
         CanIdType = ctr_elements[0].xpath("string(d:var[@name='CanIdType']/@value)", namespaces=namespace)
         CanHandleType = ctr_elements[0].xpath("string(d:var[@name='CanHandleType']/@value)", namespaces=namespace)
         CanControllerRef = ctr_elements[0].xpath("string(d:ref[@name='CanControllerRef']/@value)", namespaces=namespace)
-        
+        CanFilterMaskRef = ctr_elements[0].xpath(".//d:lst[@name='CanFilterMaskRef']/d:ref/@value", namespaces=namespace)
     else:
-        CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef = None, None, None, None, None
+        CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef,CanFilterMaskRef = None, None, None, None, None,None
 
-    return CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef
+    return CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef,CanFilterMaskRef
 
 #verify the frame attributes from the excel file with the attributes from the .xdm file
 def verify_frame(excel_file_path, xdm_file_path, frame_name):
-    CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef = extract_CanValues(xdm_file_path, frame_name)
+    CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef,CanFilterMaskRef = extract_CanValues(xdm_file_path, frame_name)
     if CanIdValue is None or CanObjectType is None or CanIdType is None or CanHandleType is None or CanControllerRef is None:
         result_label.config(text="Frame Not Found in Can.xdm File", fg="red")
         can_id_value_label.config(text="")
@@ -69,22 +69,34 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
         return
     try:
 
-        if "/Can/Can/CanConfigSet_0/CAN_1" in CanControllerRef and selected_frame["AEE10r3 Reseau_T"].strip().values[0].startswith("HS1"):
+        if "ASPath:/Can/Can/CanConfigSet_0/CAN_1" == CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS1"):
             pass
-        elif "/Can/Can/CanConfigSet_0/CAN_2" in CanControllerRef and selected_frame["AEE10r3 Reseau_T"].strip().values[0].startswith("HS2"):
+        elif "ASPath:/Can/Can/CanConfigSet_0/CAN_2" == CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS2"):
             pass
-        elif "/Can/Can/CanConfigSet_0/CAN_3" in CanControllerRef and selected_frame["AEE10r3 Reseau_T"].strip().values[0].startswith("E_CAN"):
+        elif "ASPath:/Can/Can/CanConfigSet_0/CAN_3" == CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("E_CAN"):
             pass
         else:
             result_label.config(text="Fail (Incorrect CanControllerRef/AEE10r3 Reseau_T association).", fg="red")
             can_id_value_label.config(text="")
             return
+        
+        if "ASPath:/Can/Can/CanConfigSet_0/CAN_1/AcceptCanIDonly" in CanFilterMaskRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS1"):
+            pass
+        elif "ASPath:/Can/Can/CanConfigSet_0/CAN_2/AcceptCanIDonly" in CanFilterMaskRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS2"):
+            pass
+        elif "ASPath:/Can/Can/CanConfigSet_0/CAN_3" in CanFilterMaskRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("E_CAN"):
+            pass
+        else:
+            print(CanFilterMaskRef)
+            result_label.config(text="Fail (Incorrect CanFilterMaskRef/AEE10r3 Reseau_T association).", fg="red")
+            can_id_value_label.config(text="")
+            return
 
         result_label.config(text="Confirmed", fg="green")
-        can_id_value_label.config(text=f"CanObjectType : {CanObjectType}\n CanIdType : {CanIdType}\n CanHandleType : {CanHandleType}\n CanIdValue : {CanIdValue}\n CanControllerRef : {selected_frame['AEE10r3 Reseau_T'].values[0]}\n")
+        can_id_value_label.config(text=f"CanObjectType : {CanObjectType}\n CanIdType : {CanIdType}\n CanHandleType : {CanHandleType}\n CanIdValue : {CanIdValue}\n CanControllerRef/CanFilterMaskRef : {selected_frame['AEE10r3 Reseau_T'].values[0]}\n")
 
     except Exception as e:
-        logging.error(f"Error occurred : {e}")
+        print(f"Error occurred : {e}")
         return False
 
 #select the excel file from the interface
