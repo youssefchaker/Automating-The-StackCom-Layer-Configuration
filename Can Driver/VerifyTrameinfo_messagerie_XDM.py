@@ -48,7 +48,10 @@ def extract_CanValues(xdm_file, frame_name):
     root = etree.fromstring(xml_content)
     namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}
 
-    ctr_elements = root.xpath(".//d:ctr[contains(@name, $name)]", namespaces=namespace, name=frame_name)
+    ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr[contains(@name, $name)]", namespaces=namespace, name=frame_name)
+
+
+    print(ctr_elements)
     if ctr_elements:
         CanIdValue = int(ctr_elements[0].xpath("d:var[@name='CanIdValue']/@value", namespaces=namespace)[0])
         CanObjectType = ctr_elements[0].xpath("string(d:var[@name='CanObjectType']/@value)", namespaces=namespace)
