@@ -5,6 +5,8 @@ from tkinter import filedialog
 from lxml import etree
 from openpyxl import load_workbook
 
+file_path = os.path.join(os.getcwd(), 'Output.xlsx')
+
 # Define expected headers for cleaning the Excel data
 expected_headers = {'FRAMES': ['Radical', 'Activation trame', 'Protocole_M', 'Identifiant_T', 'Taille_Max_T', 'Lmin_T', 'Mode_Transmission_T', 'Nature_Evenement_FR_T', 'Nature_Evenement_GB_T', 'Periode_T', 'UCE Emetteur', 'AEE10r3 Reseau_T']}
 
@@ -28,7 +30,6 @@ def write_to_Excel(result_data, file_path):
         writer.book = book
 
         if 'CAN_verif_XDM_Messagerie' in pd.ExcelFile(file_path).sheet_names:
-            # Check if the 'Passed?' column already exists in the sheet
             sheet = book['CAN_verif_XDM_Messagerie']
             # Append the data to the existing sheet
             df.to_excel(writer, sheet_name='CAN_verif_XDM_Messagerie', index=False, header=False, startrow=writer.sheets['CAN_verif_XDM_Messagerie'].max_row)
@@ -49,9 +50,6 @@ def extract_CanValues(xdm_file, frame_name):
     namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}
 
     ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr[contains(@name, $name)]", namespaces=namespace, name=frame_name)
-
-
-    print(ctr_elements)
     if ctr_elements:
         CanIdValue = int(ctr_elements[0].xpath("d:var[@name='CanIdValue']/@value", namespaces=namespace)[0])
         CanObjectType = ctr_elements[0].xpath("string(d:var[@name='CanObjectType']/@value)", namespaces=namespace)
@@ -68,7 +66,6 @@ def extract_CanValues(xdm_file, frame_name):
 # Function to verify the frame attributes from the Excel file with the attributes from the .xdm file
 def verify_frame(excel_file_path, xdm_file_path, frame_name):
     CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef,CanFilterMaskRef = extract_CanValues(xdm_file_path, frame_name)
-    file_path = os.path.join(os.getcwd(), 'CAN_verif_XDM_Messagerie.xlsx')
     if CanIdValue is None and CanObjectType is None and CanIdType is None and CanHandleType is None and CanControllerRef is None and CanFilterMaskRef is None :
         result_data = {
             'Frame Name': [frame_name],
@@ -181,7 +178,7 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
 
 # Clear the Excel file
 def clear_excel():
-    file_path = os.path.join(os.getcwd(), 'CAN_verif_XDM_Messagerie.xlsx')
+    file_path = os.path.join(os.getcwd(), 'Output.xlsx')
 
     # Create an Excel writer object
     excel_writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
@@ -232,7 +229,7 @@ def verify_button_click():
 
 # Create the GUI
 root = tk.Tk()
-root.title("Frame Verification")
+root.title("Frame Info XDM/Messagerie Verification")
 
 frame = tk.Frame(root)
 frame.pack(padx=10, pady=10)
