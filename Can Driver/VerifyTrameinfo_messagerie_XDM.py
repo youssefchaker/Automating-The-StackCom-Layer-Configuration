@@ -44,9 +44,9 @@ def write_to_Excel(result_data, file_path):
 # Function to extract necessary attributes for the target frame from the .xdm file
 def extract_CanValues(xdm_file, frame_name):
     with open(xdm_file, 'r') as file:
-        xml_content = file.read()
+        xdm_content = file.read()
 
-    root = etree.fromstring(xml_content)
+    root = etree.fromstring(xdm_content)
     namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}
 
     ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr[contains(@name, $name)]", namespaces=namespace, name=frame_name)
@@ -65,115 +65,116 @@ def extract_CanValues(xdm_file, frame_name):
 
 # Function to verify the frame attributes from the Excel file with the attributes from the .xdm file
 def verify_frame(excel_file_path, xdm_file_path, frame_name):
-    CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef,CanFilterMaskRef = extract_CanValues(xdm_file_path, frame_name)
-    if CanIdValue is None and CanObjectType is None and CanIdType is None and CanHandleType is None and CanControllerRef is None and CanFilterMaskRef is None :
-        result_data = {
-            'Frame Name': [frame_name],
-            'Passed?': ["Frame Not Found in Can.xdm File"],
-            'CanIdValue': [" "],
-            'Identifiant_t': [" "],
-            'CanIdValue/Identifiant_t': [" "],
-            'CanObjectType': [" "],
-            'UCE_Emetteur': [" "],
-            'CanObjectType/UCE_Emetteur': [" "],
-            'CanIdType': [" "],
-            'CanHandleType': [" "],
-            'CanControllerRef': [" "],
-            'CanFilterMaskRef': [" "],
-            'AEE10r3 Reseau_T': [" "],
-            'CanControllerRef/AEE10r3 Reseau_T': [" "],
-            'CanFilterMaskRef/AEE10r3 Reseau_T': [" "],
-        }
-        write_to_Excel(result_data,file_path)
-        return False
-        
-        
-    frames_data = cleanExcelData(excel_file_path)
-    selected_frame = frames_data[frames_data['Radical'] == frame_name]
-
-    if selected_frame.empty:
-        result_data = {
-            'Frame Name': [frame_name],
-            'Passed?': ["Frame Not Found in Messagerie "],
-            'CanIdValue': [" "],
-            'Identifiant_t': [" "],
-            'CanIdValue/Identifiant_t': [" "],
-            'CanObjectType': [" "],
-            'UCE_Emetteur': [" "],
-            'CanObjectType/UCE_Emetteur': [" "],
-            'CanIdType': [" "],
-            'CanHandleType': [" "],
-            'CanControllerRef': [" "],
-            'CanFilterMaskRef': [" "],
-            'AEE10r3 Reseau_T': [" "],
-            'CanControllerRef/AEE10r3 Reseau_T': [" "],
-            'CanFilterMaskRef/AEE10r3 Reseau_T': [" "],
-        }
-        write_to_Excel(result_data,file_path)
-        return False
-
-    CanIdValuetst=CanIdTypetst=CanHandleTypetst=CanObjectTypetst=CanControllerReftst=CanFilterMaskReftst=True
-
-    identifiant_t_hex = selected_frame["Identifiant_T"].values[0]
-    identifiant_t_decimal = int(identifiant_t_hex, 16)
-
-    if identifiant_t_decimal != CanIdValue:
-        CanIdValuetst=False
-
-    if CanIdType != "STANDARD":
-        CanIdTypetst=False
-
-    if CanHandleType != "FULL":
-        CanHandleTypetst =False
-    
-    if CanObjectType == "RECEIVE" and not selected_frame["UCE Emetteur"].str.endswith("E_VCU").any():
-        pass
-    elif CanObjectType == "TRANSMIT" and selected_frame["UCE Emetteur"].str.endswith("E_VCU").any():
-        pass
-    else:
-        CanObjectTypetst=False
     try:
-
-        if "ASPath:/Can/Can/CanConfigSet_0/CAN_1" == CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS1"):
-            pass
-        elif "ASPath:/Can/Can/CanConfigSet_0/CAN_2" == CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS2"):
-            pass
-        elif "ASPath:/Can/Can/CanConfigSet_0/CAN_3" == CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("E_CAN"):
-            pass
+        CanIdValue, CanObjectType, CanIdType, CanHandleType, CanControllerRef,CanFilterMaskRef = extract_CanValues(xdm_file_path, frame_name)
+        if CanIdValue is None and CanObjectType is None and CanIdType is None and CanHandleType is None and CanControllerRef is None and CanFilterMaskRef is None :
+            result_data = {
+                'Frame Name': [frame_name],
+                'Passed?': ["Frame Not Found in Can.xdm File"],
+                'CanIdValue': [" "],
+                'Identifiant_t': [" "],
+                'CanIdValue/Identifiant_t': [" "],
+                'CanObjectType': [" "],
+                'UCE_Emetteur': [" "],
+                'CanObjectType/UCE_Emetteur': [" "],
+                'CanIdType': [" "],
+                'CanHandleType': [" "],
+                'CanControllerRef': [" "],
+                'CanFilterMaskRef': [" "],
+                'AEE10r3 Reseau_T': [" "],
+                'CanControllerRef/AEE10r3 Reseau_T': [" "],
+                'CanFilterMaskRef/AEE10r3 Reseau_T': [" "],
+            }
+            write_to_Excel(result_data,file_path)
+            return False
         else:
-            CanControllerReftst=False
-        
-        if "ASPath:/Can/Can/CanConfigSet_0/CAN_1/AcceptCanIDonly" in CanFilterMaskRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS1"):
-            pass
-        elif "ASPath:/Can/Can/CanConfigSet_0/CAN_2/AcceptCanIDonly" in CanFilterMaskRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS2"):
-            pass
-        elif "ASPath:/Can/Can/CanConfigSet_0/CAN_3" in CanFilterMaskRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("E_CAN"):
-            pass
-        else:
-            CanFilterMaskReftst=False
+            
+            
+            frames_data = cleanExcelData(excel_file_path)
+            selected_frame = frames_data[frames_data['Radical'] == frame_name]
 
+            if selected_frame.empty:
+                result_data = {
+                    'Frame Name': [frame_name],
+                    'Passed?': ["Frame Not Found in Messagerie "],
+                    'CanIdValue': [" "],
+                    'Identifiant_t': [" "],
+                    'CanIdValue/Identifiant_t': [" "],
+                    'CanObjectType': [" "],
+                    'UCE_Emetteur': [" "],
+                    'CanObjectType/UCE_Emetteur': [" "],
+                    'CanIdType': [" "],
+                    'CanHandleType': [" "],
+                    'CanControllerRef': [" "],
+                    'CanFilterMaskRef': [" "],
+                    'AEE10r3 Reseau_T': [" "],
+                    'CanControllerRef/AEE10r3 Reseau_T': [" "],
+                    'CanFilterMaskRef/AEE10r3 Reseau_T': [" "],
+                }
+                write_to_Excel(result_data,file_path)
+                return False
+            else:
+
+                CanIdValuetst=CanIdTypetst=CanHandleTypetst=CanObjectTypetst=CanControllerReftst=CanFilterMaskReftst=True
+
+                identifiant_t_hex = selected_frame["Identifiant_T"].values[0]
+                identifiant_t_decimal = int(identifiant_t_hex, 16)
+
+                if identifiant_t_decimal != CanIdValue:
+                    CanIdValuetst=False
+
+                if CanIdType != "STANDARD":
+                    CanIdTypetst=False
+
+                if CanHandleType != "FULL":
+                    CanHandleTypetst =False
+                
+                if CanObjectType == "RECEIVE" and not selected_frame["UCE Emetteur"].str.endswith("E_VCU").any():
+                    pass
+                elif CanObjectType == "TRANSMIT" and selected_frame["UCE Emetteur"].str.endswith("E_VCU").any():
+                    pass
+                else:
+                    CanObjectTypetst=False
+
+                    if "ASPath:/Can/Can/CanConfigSet_0/CAN_1" == CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS1"):
+                        pass
+                    elif "ASPath:/Can/Can/CanConfigSet_0/CAN_2" == CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS2"):
+                        pass
+                    elif "ASPath:/Can/Can/CanConfigSet_0/CAN_3" == CanControllerRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("E_CAN"):
+                        pass
+                    else:
+                        CanControllerReftst=False
+                    
+                    if "ASPath:/Can/Can/CanConfigSet_0/CAN_1/AcceptCanIDonly" in CanFilterMaskRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS1"):
+                        pass
+                    elif "ASPath:/Can/Can/CanConfigSet_0/CAN_2/AcceptCanIDonly" in CanFilterMaskRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("HS2"):
+                        pass
+                    elif "ASPath:/Can/Can/CanConfigSet_0/CAN_3" in CanFilterMaskRef and selected_frame["AEE10r3 Reseau_T"].values[0].startswith("E_CAN"):
+                        pass
+                    else:
+                        CanFilterMaskReftst=False
+
+                result_data = {
+                    'Frame Name': [frame_name],
+                    'Passed?':[" " if CanIdValuetst ==False or CanIdTypetst==False or CanHandleTypetst==False or CanObjectTypetst==False or CanControllerReftst==False or CanFilterMaskReftst==False else "X"],
+                    'CanIdValue':[CanIdValue],
+                    'Identifiant_t':[identifiant_t_decimal],
+                    'CanIdValue/Identifiant_t':['Error (ID Mismatch)' if CanIdValuetst==False else " "],
+                    'CanObjectType': [CanObjectType],
+                    'UCE_Emetteur': [selected_frame["UCE Emetteur"].values[0]],
+                    'CanObjectType/UCE_Emetteur': ['Error (CanObjectType Mismatch)' if CanObjectTypetst==False else " "],
+                    'CanIdType': ['Error (CanIdType is not STANDARD)' if CanIdTypetst==False else CanIdType],
+                    'CanHandleType': ['Error (CanHandleType is not FULL)' if CanHandleTypetst==False else CanHandleType],
+                    'CanControllerRef': [CanControllerRef],
+                    'CanFilterMaskRef': [CanFilterMaskRef],
+                    'AEE10r3 Reseau_T': [selected_frame["AEE10r3 Reseau_T"].values[0]],
+                    'CanControllerRef/AEE10r3 Reseau_T': ['Error (CanControllerRef Mismatch)' if CanControllerReftst==False else " "],
+                    'CanFilterMaskRef/AEE10r3 Reseau_T': ['Error (CanFilterMaskRef Mismatch)' if CanFilterMaskReftst==False else " "],
+                }
+                write_to_Excel(result_data,file_path)
     except Exception as e:
-        print(f"Error occurred : {e}")
-        return False   
-
-    result_data = {
-        'Frame Name': [frame_name],
-        'Passed?':[" " if CanIdValuetst ==False or CanIdTypetst==False or CanHandleTypetst==False or CanObjectTypetst==False or CanControllerReftst==False or CanFilterMaskReftst==False else "X"],
-        'CanIdValue':[CanIdValue],
-        'Identifiant_t':[identifiant_t_decimal],
-        'CanIdValue/Identifiant_t':['Error (ID Mismatch)' if CanIdValuetst==False else " "],
-        'CanObjectType': [CanObjectType],
-        'UCE_Emetteur': [selected_frame["UCE Emetteur"].values[0]],
-        'CanObjectType/UCE_Emetteur': ['Error (CanObjectType Mismatch)' if CanObjectTypetst==False else " "],
-        'CanIdType': ['Error (CanIdType is not STANDARD)' if CanIdTypetst==False else CanIdType],
-        'CanHandleType': ['Error (CanHandleType is not FULL)' if CanHandleTypetst==False else CanHandleType],
-        'CanControllerRef': [CanControllerRef],
-        'CanFilterMaskRef': [CanFilterMaskRef],
-        'AEE10r3 Reseau_T': [selected_frame["AEE10r3 Reseau_T"].values[0]],
-        'CanControllerRef/AEE10r3 Reseau_T': ['Error (CanControllerRef Mismatch)' if CanControllerReftst==False else " "],
-        'CanFilterMaskRef/AEE10r3 Reseau_T': ['Error (CanFilterMaskRef Mismatch)' if CanFilterMaskReftst==False else " "],
-    }
-    write_to_Excel(result_data,file_path)
+                print(f"Error occurred : {e}")
+                return False   
 
 
 # Clear the Excel file
@@ -199,6 +200,7 @@ def clear_excel():
     'CanFilterMaskRef/AEE10r3 Reseau_T',])
     df.to_excel(excel_writer, sheet_name='CAN_verif_XDM_Messagerie', index=False)
     excel_writer.save()
+    completion_label.config(text="Output File Cleared", fg="blue")
 
 
 #select the excel file from the interface
@@ -226,10 +228,11 @@ def verify_button_click():
     frame_name = frame_entry.get()
 
     verify_frame(excel_file_path, xdm_file_path, frame_name)
+    completion_label.config(text="Output Created", fg="green")
 
 # Create the GUI
 root = tk.Tk()
-root.title("Frame Info XDM/Messagerie Verification")
+root.title("Frame Info CAN/Messagerie Verification")
 
 frame = tk.Frame(root)
 frame.pack(padx=10, pady=10)
@@ -263,5 +266,8 @@ verify_button.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
 
 clear_excel_button = tk.Button(frame, text="Clear Excel", command=clear_excel)
 clear_excel_button.grid(row=6, column=0, columnspan=3, padx=5, pady=5)
+
+completion_label = tk.Label(frame, text="", fg="green")
+completion_label.grid(row=7, column=0, columnspan=3, padx=5, pady=5)
 
 root.mainloop()

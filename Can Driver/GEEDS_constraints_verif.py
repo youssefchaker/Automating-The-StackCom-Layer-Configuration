@@ -45,14 +45,15 @@ def clear_excel():
     'Order by CanObjectId'])
     df.to_excel(excel_writer, sheet_name='CAN_verif_Geeds', index=False, header=True)
     excel_writer.save()
+    completion_label.config(text="Output File Cleared", fg="blue")
 
 #Ordering by TRANSMIT and RECIEVE
 def ordered_by_RX_TX(xdm_file):
     try:
         with open(xdm_file, 'r') as file:
-            xml_content = file.read()
+            xdm_content = file.read()
 
-        root = etree.fromstring(xml_content)
+        root = etree.fromstring(xdm_content)
         ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
 
         receive_indices = [i for i, ctr in enumerate(ctr_elements) if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "RECEIVE"]
@@ -78,9 +79,9 @@ def ordered_by_CAN_Ref(xdm_file):
     expected_order = ['CAN_2', 'CAN_1', 'CAN_DEVAID', 'CAN_3']
     try:
         with open(xdm_file, 'r') as file:
-            xml_content = file.read()
+            xdm_content = file.read()
 
-        root = etree.fromstring(xml_content)
+        root = etree.fromstring(xdm_content)
         ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
 
         def check_order(frames):
@@ -122,9 +123,9 @@ def ordered_by_CAN_Ref(xdm_file):
 def ordered_by_id(xdm_file):
     try:
         with open(xdm_file, 'r') as file:
-            xml_content = file.read()
+            xdm_content = file.read()
 
-        root = etree.fromstring(xml_content)
+        root = etree.fromstring(xdm_content)
         ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
 
         frames_data = [(ctr.attrib['name'], ctr.xpath("string(d:var[@name='CanObjectId']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})) for ctr in ctr_elements]
@@ -168,6 +169,7 @@ def check_all():
         'Order by CanObjectId':[" " if ordered_by_id(xdm_file_path)==True else ordered_by_id(xdm_file_path)]
      }
     write_to_Excel(result_data,file_path)
+    completion_label.config(text="Output Created", fg="green")
 
     
 #open the xdm file
@@ -198,5 +200,8 @@ check_receive_transmit_button.grid(row=1, column=0, columnspan=3, pady=5)
 
 clear_excel_button = tk.Button(frame, text="Clear Excel", command=clear_excel)
 clear_excel_button.grid(row=2, column=0, columnspan=3, pady=5)
+
+completion_label = tk.Label(frame, text="", fg="green")
+completion_label.grid(row=7, column=0, columnspan=3, padx=5, pady=5)
 
 root.mainloop()
