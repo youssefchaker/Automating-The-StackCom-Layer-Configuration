@@ -131,11 +131,11 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
                 'Frame type':["TRANSMIT" if selected_frame["UCE Emetteur"].str.endswith("E_VCU").any() else "RECEIVE" ],
                 'CanIfCanCtrlIdRef':[CanIfCanCtrlIdRef],
                 'AEE10r3 Reseau_T': [selected_frame["AEE10r3 Reseau_T"].values[0]],
-                'CanIfCanCtrlIdRef/AEE10r3 Reseau_T': ['Error (CanIfCanCtrlIdRef Mismatch)' if CanIfCanCtrlIdReftst==False else " "],
+                'CanIfCanCtrlIdRef/AEE10r3 Reseau_T Errors': ['Error (CanIfCanCtrlIdRef Mismatch)' if CanIfCanCtrlIdReftst==False else "None"],
                 'CanIfCanHandleTypeRef':[CanIfCanHandleTypeRef],
-                'CanIfCanHandleTypeRef/Frame Name': ['Error (Frame Name not present in CanIfCanHandleTypeRef)' if CanIfCanHandleTypeReftst==False else " "],
+                'CanIfCanHandleTypeRef/Frame Name Errors': ['Error (Frame Name not present in CanIfCanHandleTypeRef)' if CanIfCanHandleTypeReftst==False else "None"],
                 'CanIfIdSymRef':[CanIfIdSymRef],
-                'CanIfIdSymRef/Frame Name': ['Error (Frame Name not present in CanIfIdSymRef)' if CanIfIdSymReftst==False else " "],
+                'CanIfIdSymRef/Frame Name Errors': ['Error (Frame Name not present in CanIfIdSymRef)' if CanIfIdSymReftst==False else "None"],
             }
             write_to_Excel(result_data,file_path)
 

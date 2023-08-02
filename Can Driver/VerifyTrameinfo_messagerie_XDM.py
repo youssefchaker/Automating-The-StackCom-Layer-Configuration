@@ -159,17 +159,17 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
                     'Passed?':[" " if CanIdValuetst ==False or CanIdTypetst==False or CanHandleTypetst==False or CanObjectTypetst==False or CanControllerReftst==False or CanFilterMaskReftst==False else "X"],
                     'CanIdValue':[CanIdValue],
                     'Identifiant_t':[identifiant_t_decimal],
-                    'CanIdValue/Identifiant_t':['Error (ID Mismatch)' if CanIdValuetst==False else " "],
+                    'CanIdValue/Identifiant_t Errors':['Error (ID Mismatch)' if CanIdValuetst==False else "None"],
                     'CanObjectType': [CanObjectType],
                     'UCE_Emetteur': [selected_frame["UCE Emetteur"].values[0]],
-                    'CanObjectType/UCE_Emetteur': ['Error (CanObjectType Mismatch)' if CanObjectTypetst==False else " "],
+                    'CanObjectType/UCE_Emetteur Errors': ['Error (CanObjectType Mismatch)' if CanObjectTypetst==False else "None"],
                     'CanIdType': ['Error (CanIdType is not STANDARD)' if CanIdTypetst==False else CanIdType],
                     'CanHandleType': ['Error (CanHandleType is not FULL)' if CanHandleTypetst==False else CanHandleType],
                     'CanControllerRef': [CanControllerRef],
                     'CanFilterMaskRef': [CanFilterMaskRef],
                     'AEE10r3 Reseau_T': [selected_frame["AEE10r3 Reseau_T"].values[0]],
-                    'CanControllerRef/AEE10r3 Reseau_T': ['Error (CanControllerRef Mismatch)' if CanControllerReftst==False else " "],
-                    'CanFilterMaskRef/AEE10r3 Reseau_T': ['Error (CanFilterMaskRef Mismatch)' if CanFilterMaskReftst==False else " "],
+                    'CanControllerRef/AEE10r3 Reseau_T Errors': ['Error (CanControllerRef Mismatch)' if CanControllerReftst==False else "None"],
+                    'CanFilterMaskRef/AEE10r3 Reseau_T Errors': ['Error (CanFilterMaskRef Mismatch)' if CanFilterMaskReftst==False else "None"],
                 }
                 write_to_Excel(result_data,file_path)
     except Exception as e:
