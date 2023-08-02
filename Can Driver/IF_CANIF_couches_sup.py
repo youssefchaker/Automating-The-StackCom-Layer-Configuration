@@ -56,20 +56,17 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
                     'Frame Name': [frame_name],
                     'Passed?':["Frame Not Found in Messagerie"],
                     'Frame type':' ',
-                    'CanIfPduCanId':' ',
+                    'CanIfRxPduCanId_CanIfTxPduCanId':' ',
                     'CanIdValue':' ',
-                    'CanIfPduCanId/CanIdValue':' ',
-                    'CanIfPduCanIdType':' ',
-                    'CanIfPduId':' ',
-                    'CanObjectId':' ',
-                    'CanIfPduId/CanObjectId':' ',
-                    'CanIfPduRef':' ',
-                    'CanIfPduIdRef':' ',
-                    'CanIfPduReadNotifyStatus':' ',
+                    'CanIfRxPduCanId_CanIfTxPduCanId/CanIdValue Errors':' ',
+                    'CanIfRxPduCanIdType_CanIfTxPduCanIdType':' ',
+                    'CanIfRxPduRef_CanIfTxPduRef':' ',
+                    'CanIfRxPduHrhIdRef_CanIfTxPduHthIdRef':' ',
+                    'CanIfRxPduReadNotifyStatus_CanIfTxPduReadNotifyStatus':' ',
                     'CanIfRxPduReadData':' ',
                     'CanIfRxPduDlc':' ',
                     'Frame Size':' ',
-                    'CanIfRxPduDlc/Frame Size':' ',
+                    'CanIfRxPduDlc/Frame Size Errors':' ',
                     'CanIfRxPduUserRxIndicationName':' ',
                     'CanIfRxPduUserRxIndicationUL':' ',
                     'CanIfTxPduPnFilterPdu':' ',
@@ -78,8 +75,8 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
                     'CanIfTxPduUserTxConfirmationUL':' '
             }
         write_to_Excel(result_data,file_path)
-        CanIfPduCanId= CanIfPduCanIdType=CanIfPduId=CanIfPduRef=CanIfPduIdRef=CanIfPduReadNotifyStatus=CanIfRxPduReadData=CanIfRxPduDlc=CanIfRxPduUserRxIndicationName=CanIfRxPduUserRxIndicationUL=CanIfTxPduPnFilterPdu=CanIfTxPduType=CanIfTxPduUserTxConfirmationName=CanIfTxPduUserTxConfirmationUL= -1
-        return CanIfPduCanId, CanIfPduCanIdType,CanIfPduId,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL
+        CanIfPduCanId= CanIfPduCanIdType=CanIfPduRef=CanIfPduIdRef=CanIfPduReadNotifyStatus=CanIfRxPduReadData=CanIfRxPduDlc=CanIfRxPduUserRxIndicationName=CanIfRxPduUserRxIndicationUL=CanIfTxPduPnFilterPdu=CanIfTxPduType=CanIfTxPduUserTxConfirmationName=CanIfTxPduUserTxConfirmationUL= -1
+        return CanIfPduCanId, CanIfPduCanIdType,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL
     else:
         if(not selected_frame["UCE Emetteur"].str.endswith("E_VCU").any()):
             CanIfTxPduPnFilterPdu = -2
@@ -90,7 +87,6 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
             if ctr_elements:
                 CanIfPduCanId = int(ctr_elements[0].xpath("d:var[@name='CanIfRxPduCanId']/@value", namespaces=namespace)[0])
                 CanIfPduCanIdType = ctr_elements[0].xpath("string(d:var[@name='CanIfRxPduCanIdType']/@value)", namespaces=namespace)
-                CanIfPduId = ctr_elements[0].xpath("d:var[@name='CanIfRxPduId']/@value", namespaces=namespace)[0]
                 CanIfPduRef = ctr_elements[0].xpath("string(d:ref[@name='CanIfRxPduRef']/@value)", namespaces=namespace)
                 CanIfPduIdRef = ctr_elements[0].xpath("string(d:ref[@name='CanIfRxPduHrhIdRef']/@value)", namespaces=namespace)
                 CanIfPduReadNotifyStatus = ctr_elements[0].xpath("d:var[@name='CanIfRxPduReadNotifyStatus']/@value", namespaces=namespace)[0]
@@ -100,8 +96,8 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
                 CanIfRxPduUserRxIndicationName = ctr_elements[0].xpath("string(d:var[@name='CanIfRxPduUserRxIndicationName']/@value)", namespaces=namespace)
                 CanIfRxPduUserRxIndicationUL = ctr_elements[0].xpath("string(d:var[@name='CanIfRxPduUserRxIndicationUL']/@value)", namespaces=namespace)
             else:
-                CanIfPduCanId= CanIfPduCanIdType=CanIfPduId=CanIfPduRef=CanIfPduIdRef=CanIfPduReadNotifyStatus=CanIfRxPduReadData=CanIfRxPduDlc=CanIfRxPduUserRxIndicationName=CanIfRxPduUserRxIndicationUL= None
-            return CanIfPduCanId, CanIfPduCanIdType,CanIfPduId,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL
+                CanIfPduCanId= CanIfPduCanIdType=CanIfPduRef=CanIfPduIdRef=CanIfPduReadNotifyStatus=CanIfRxPduReadData=CanIfRxPduDlc=CanIfRxPduUserRxIndicationName=CanIfRxPduUserRxIndicationUL= None
+            return CanIfPduCanId, CanIfPduCanIdType,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL
         else:
             CanIfRxPduReadData = -2
             CanIfRxPduDlc = -2
@@ -111,7 +107,6 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
             if ctr_elements:
                 CanIfPduCanId = int(ctr_elements[0].xpath("d:var[@name='CanIfTxPduCanId']/@value", namespaces=namespace)[0])
                 CanIfPduCanIdType = ctr_elements[0].xpath("string(d:var[@name='CanIfTxPduCanIdType']/@value)", namespaces=namespace)
-                CanIfPduId = ctr_elements[0].xpath("d:var[@name='CanIfTxPduId']/@value", namespaces=namespace)[0]
                 CanIfPduRef = ctr_elements[0].xpath("string(d:ref[@name='CanIfTxPduRef']/@value)", namespaces=namespace)
                 CanIfPduIdRef = ctr_elements[0].xpath("string(d:ref[@name='CanIfTxPduHthIdRef']/@value)", namespaces=namespace)
                 CanIfPduReadNotifyStatus = ctr_elements[0].xpath("d:var[@name='CanIfTxPduReadNotifyStatus']/@value", namespaces=namespace)[0]
@@ -122,8 +117,8 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
                 CanIfTxPduUserTxConfirmationName = ctr_elements[0].xpath("string(d:var[@name='CanIfTxPduUserTxConfirmationName']/@value)", namespaces=namespace)
                 CanIfTxPduUserTxConfirmationUL = ctr_elements[0].xpath("string(d:var[@name='CanIfTxPduUserTxConfirmationUL']/@value)", namespaces=namespace)
             else:
-                CanIfPduCanId= CanIfPduCanIdType=CanIfPduId=CanIfPduRef=CanIfPduIdRef=CanIfPduReadNotifyStatus=CanIfTxPduPnFilterPdu=CanIfTxPduType=CanIfTxPduUserTxConfirmationName=CanIfTxPduUserTxConfirmationUL= None
-            return CanIfPduCanId, CanIfPduCanIdType,CanIfPduId,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL
+                CanIfPduCanId= CanIfPduCanIdType=CanIfPduRef=CanIfPduIdRef=CanIfPduReadNotifyStatus=CanIfTxPduPnFilterPdu=CanIfTxPduType=CanIfTxPduUserTxConfirmationName=CanIfTxPduUserTxConfirmationUL= None
+            return CanIfPduCanId, CanIfPduCanIdType,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL
         
         
 
@@ -139,37 +134,33 @@ def extract_CanValues(can_file_path, frame_name):
     ctr_elements = root_can.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr[contains(@name, $name)]", namespaces=namespace, name=frame_name)
     if ctr_elements:
         CanIdValue = int(ctr_elements[0].xpath("d:var[@name='CanIdValue']/@value", namespaces=namespace)[0])
-        CanObjectId = int(ctr_elements[0].xpath("d:var[@name='CanObjectId']/@value", namespaces=namespace)[0])
     else:
-        CanIdValue, CanObjectId = None, None
+        CanIdValue= None
 
-    return CanIdValue, CanObjectId
+    return CanIdValue
 
 def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
     try:
-        CanIdValue, CanObjectId=extract_CanValues(can_file_path,frame_name)
-        CanIfPduCanId, CanIfPduCanIdType,CanIfPduId,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL = extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_path)
+        CanIdValue=extract_CanValues(can_file_path,frame_name)
+        CanIfPduCanId, CanIfPduCanIdType,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL = extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_path)
         if CanIfPduCanId== -1:
             return False
-        elif CanIfPduCanId is None and CanIfPduCanIdType is None and CanIfPduId is None and CanIfPduRef is None and CanIfPduIdRef is None and CanIfPduReadNotifyStatus is None :
+        elif CanIfPduCanId is None and CanIfPduCanIdType is None and CanIfPduRef is None and CanIfPduIdRef is None and CanIfPduReadNotifyStatus is None :
             result_data = {
                     'Frame Name': [frame_name],
                     'Passed?':["Frame Not Found in CANIF"],
                     'Frame type':' ',
-                    'CanIfPduCanId':' ',
+                    'CanIfRxPduCanId_CanIfTxPduCanId':' ',
                     'CanIdValue':' ',
-                    'CanIfPduCanId/CanIdValue':' ',
-                    'CanIfPduCanIdType':' ',
-                    'CanIfPduId':' ',
-                    'CanObjectId':' ',
-                    'CanIfPduId/CanObjectId':' ',
-                    'CanIfPduRef':' ',
-                    'CanIfPduIdRef':' ',
-                    'CanIfPduReadNotifyStatus':' ',
+                    'CanIfRxPduCanId_CanIfTxPduCanId/CanIdValue Errors':' ',
+                    'CanIfRxPduCanIdType_CanIfTxPduCanIdType':' ',
+                    'CanIfRxPduRef_CanIfTxPduRef':' ',
+                    'CanIfRxPduHrhIdRef_CanIfTxPduHthIdRef':' ',
+                    'CanIfRxPduReadNotifyStatus_CanIfTxPduReadNotifyStatus':' ',
                     'CanIfRxPduReadData':' ',
                     'CanIfRxPduDlc':' ',
                     'Frame Size':' ',
-                    'CanIfRxPduDlc/Frame Size':' ',
+                    'CanIfRxPduDlc/Frame Size Errors':' ',
                     'CanIfRxPduUserRxIndicationName':' ',
                     'CanIfRxPduUserRxIndicationUL':' ',
                     'CanIfTxPduPnFilterPdu':' ',
@@ -180,25 +171,22 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
             write_to_Excel(result_data,file_path)
             return False
 
-        elif (CanIdValue is None and  CanObjectId is None):
+        elif (CanIdValue is None):
             result_data = {
                     'Frame Name': [frame_name],
                     'Passed?':["Frame Not Found in CAN"],
                     'Frame type':' ',
-                    'CanIfPduCanId':' ',
+                    'CanIfRxPduCanId_CanIfTxPduCanId':' ',
                     'CanIdValue':' ',
-                    'CanIfPduCanId/CanIdValue':' ',
-                    'CanIfPduCanIdType':' ',
-                    'CanIfPduId':' ',
-                    'CanObjectId':' ',
-                    'CanIfPduId/CanObjectId':' ',
-                    'CanIfPduRef':' ',
-                    'CanIfPduIdRef':' ',
-                    'CanIfPduReadNotifyStatus':' ',
+                    'CanIfRxPduCanId_CanIfTxPduCanId/CanIdValue Errors':' ',
+                    'CanIfRxPduCanIdType_CanIfTxPduCanIdType':' ',
+                    'CanIfRxPduRef_CanIfTxPduRef':' ',
+                    'CanIfRxPduHrhIdRef_CanIfTxPduHthIdRef':' ',
+                    'CanIfRxPduReadNotifyStatus_CanIfTxPduReadNotifyStatus':' ',
                     'CanIfRxPduReadData':' ',
                     'CanIfRxPduDlc':' ',
                     'Frame Size':' ',
-                    'CanIfRxPduDlc/Frame Size':' ',
+                    'CanIfRxPduDlc/Frame Size Errors':' ',
                     'CanIfRxPduUserRxIndicationName':' ',
                     'CanIfRxPduUserRxIndicationUL':' ',
                     'CanIfTxPduPnFilterPdu':' ',
@@ -209,7 +197,7 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
             write_to_Excel(result_data,file_path)
             return False
         else:
-            CanIfPduCanIdtst=CanIfPduCanIdTypetst=CanIfPduIdtst=CanIfPduReftst=CanIfPduIdReftst=CanIfPduReadNotifyStatustst=True
+            CanIfPduCanIdtst=CanIfPduCanIdTypetst=CanIfPduReftst=CanIfPduIdReftst=CanIfPduReadNotifyStatustst=True
             CanIfRxPduReadDatatst=CanIfRxPduDlctst=CanIfRxPduUserRxIndicationNametst=CanIfRxPduUserRxIndicationULtst=CanIfTxPduPnFilterPdutst=CanIfTxPduTypetst=CanIfTxPduUserTxConfirmationNametst=CanIfTxPduUserTxConfirmationULtst=None
 
             frames_data = cleanExcelData(excel_file_path)
@@ -220,9 +208,6 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
 
             if(CanIfPduCanIdType!="STANDARD_CAN"):
                 CanIfPduCanIdTypetst=False
-
-            if (CanIfPduId!=CanObjectId):
-                CanIfPduIdtst=False
 
             if(frame_name not in CanIfPduRef):
                 CanIfPduReftst=False
@@ -270,18 +255,15 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
                 
             result_data = {
                     'Frame Name': [frame_name],
-                    'Passed?':["X" if (CanIfPduCanIdtst==True and CanIfPduCanIdTypetst==True and CanIfPduIdtst==True and CanIfPduReftst==True and CanIfPduIdReftst==True and CanIfPduReadNotifyStatustst==True) and ((CanIfRxPduReadDatatst==True and CanIfRxPduDlctst==True and CanIfRxPduUserRxIndicationNametst==True and CanIfRxPduUserRxIndicationUL==True) or (CanIfTxPduPnFilterPdutst==True and CanIfTxPduTypetst==True and CanIfTxPduUserTxConfirmationNametst==True and CanIfTxPduUserTxConfirmationULtst==True)) else " "],
+                    'Passed?':["X" if (CanIfPduCanIdtst==True and CanIfPduCanIdTypetst==True and CanIfPduReftst==True and CanIfPduIdReftst==True and CanIfPduReadNotifyStatustst==True) and ((CanIfRxPduReadDatatst==True and CanIfRxPduDlctst==True and CanIfRxPduUserRxIndicationNametst==True and CanIfRxPduUserRxIndicationULtst==True) or (CanIfTxPduPnFilterPdutst==True and CanIfTxPduTypetst==True and CanIfTxPduUserTxConfirmationNametst==True and CanIfTxPduUserTxConfirmationULtst==True)) else " "],
                     'Frame type':["TRANSMIT" if selected_frame["UCE Emetteur"].str.endswith("E_VCU").any() else "RECEIVE" ],
-                    'CanIfPduCanId':[CanIfPduCanId],
+                    'CanIfRxPduCanId_CanIfTxPduCanId':[CanIfPduCanId],
                     'CanIdValue':[CanIdValue],
-                    'CanIfPduCanId/CanIdValue Errors':["Error(ID Mismatch)" if CanIfPduCanIdtst==False else "None"],
-                    'CanIfPduCanIdType':["Error(CanIfPduCanIdType is not STANDARD_CAN)" if CanIfPduCanIdTypetst==False else "STANDARD_CAN" ],
-                    'CanIfPduId':[CanIfPduId],
-                    'CanObjectId':[CanObjectId],
-                    'CanIfPduId/CanObjectId Errors':["Error(Frame Order Mismatch)" if CanIfPduIdtst==False else "None"],
-                    'CanIfPduRef':["Error(Frame Name not present in CanIfPduRef)" if CanIfPduReftst==False else CanIfPduRef],
-                    'CanIfPduIdRef': ["Error(Frame Name not present in CanIfPduIdRef)" if CanIfPduIdReftst==False else CanIfPduIdRef],
-                    'CanIfPduReadNotifyStatus':["Error(CanIfPduReadNotifyStatus is not Deactivated)" if CanIfPduReadNotifyStatustst==False else "Deactivated"],
+                    'CanIfRxPduCanId_CanIfTxPduCanId/CanIdValue Errors':["Error(ID Mismatch)" if CanIfPduCanIdtst==False else "None"],
+                    'CanIfRxPduCanIdType_CanIfTxPduCanIdType':["Error(CanIfPduCanIdType is not STANDARD_CAN)" if CanIfPduCanIdTypetst==False else "STANDARD_CAN" ],
+                    'CanIfRxPduRef_CanIfTxPduRef':["Error(Frame Name not present in CanIfPduRef)" if CanIfPduReftst==False else CanIfPduRef],
+                    'CanIfRxPduHrhIdRef_CanIfTxPduHthIdRef': ["Error(Frame Name not present in CanIfPduIdRef)" if CanIfPduIdReftst==False else CanIfPduIdRef],
+                    'CanIfRxPduReadNotifyStatus_CanIfTxPduReadNotifyStatus':["Error(CanIfPduReadNotifyStatus is not Deactivated)" if CanIfPduReadNotifyStatustst==False else "Deactivated"],
                     'CanIfRxPduReadData':["Error(CanIfRxPduReadData is not Deactivated)" if CanIfRxPduReadDatatst==False  else "Deactivated" if not CanIfRxPduReadDatatst==None else "---" ],
                     'CanIfRxPduDlc':[CanIfRxPduDlc if not CanIfRxPduDlctst==None else "---"],
                     'Frame Size':[frame_size if not CanIfRxPduDlctst==None else "---"],
