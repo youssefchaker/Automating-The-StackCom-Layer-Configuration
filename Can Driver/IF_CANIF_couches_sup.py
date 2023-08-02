@@ -302,36 +302,13 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
 
 # Clear the Excel file
 def clear_excel():
-
-    # Create an Excel writer object
-    excel_writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
-    df = pd.DataFrame(columns=[
-        'Frame Name',
-        'Passed?',
-        'Frame type',
-        'CanIfPduCanId',
-        'CanIdValue',
-        'CanIfPduCanId/CanIdValue',
-        'CanIfPduCanIdType',
-        'CanIfPduId',
-        'CanObjectId',
-        'CanIfPduId/CanObjectId',
-        'CanIfPduRef',
-        'CanIfPduIdRef',
-        'CanIfPduReadNotifyStatus',
-        'CanIfRxPduReadData',
-        'CanIfRxPduDlc',
-        'Frame Size',
-        'CanIfRxPduDlc/Frame Size',
-        'CanIfRxPduUserRxIndicationName',
-        'CanIfRxPduUserRxIndicationUL',
-        'CanIfTxPduPnFilterPdu',
-        'CanIfTxPduType',
-        'CanIfTxPduUserTxConfirmationName',
-        'CanIfTxPduUserTxConfirmationUL'
-    ])
-    df.to_excel(excel_writer, sheet_name='IF_CANIF_couches_sup', index=False)
-    excel_writer.save()
+    sheet_name='IF_CANIF_couches_sup'
+    if os.path.exists(file_path):
+        book = load_workbook(file_path)
+        if sheet_name in book.sheetnames:
+            sheet = book[sheet_name]
+            sheet.delete_rows(2, sheet.max_row)
+        book.save(file_path)
     completion_label.config(text="Output File Cleared", fg="blue")
 
 

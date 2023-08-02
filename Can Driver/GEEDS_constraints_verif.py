@@ -35,16 +35,13 @@ def write_to_Excel(result_data, file_path):
 
 # Clear the Excel file
 def clear_excel():
-
-    # Create an Excel writer object
-    excel_writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
-    df = pd.DataFrame(columns=[
-    'Passed?',
-    'Order by RX_TX',
-    'Order by CanControllerRef',
-    'Order by CanObjectId'])
-    df.to_excel(excel_writer, sheet_name='CAN_verif_Geeds', index=False, header=True)
-    excel_writer.save()
+    sheet_name='CAN_verif_Geeds'
+    if os.path.exists(file_path):
+        book = load_workbook(file_path)
+        if sheet_name in book.sheetnames:
+            sheet = book[sheet_name]
+            sheet.delete_rows(2, sheet.max_row)
+        book.save(file_path)
     completion_label.config(text="Output File Cleared", fg="blue")
 
 #Ordering by TRANSMIT and RECIEVE

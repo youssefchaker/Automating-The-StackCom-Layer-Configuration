@@ -22,21 +22,21 @@ def write_to_Excel(result_data, file_path):
 
     if not os.path.exists(file_path):
         # Create the Excel file with the specified columns
-        df.to_excel(file_path, sheet_name='CAN_verif_XDM_Messagerie', index=False, header=True)
+        df.to_excel(file_path, sheet_name='verif_CAN_Messagerie', index=False, header=True)
     else:
         # Load the existing workbook
         book = load_workbook(file_path)
         writer = pd.ExcelWriter(file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay')
         writer.book = book
 
-        if 'CAN_verif_XDM_Messagerie' in pd.ExcelFile(file_path).sheet_names:
-            sheet = book['CAN_verif_XDM_Messagerie']
+        if 'verif_CAN_Messagerie' in pd.ExcelFile(file_path).sheet_names:
+            sheet = book['verif_CAN_Messagerie']
             # Append the data to the existing sheet
-            df.to_excel(writer, sheet_name='CAN_verif_XDM_Messagerie', index=False, header=False, startrow=writer.sheets['CAN_verif_XDM_Messagerie'].max_row)
+            df.to_excel(writer, sheet_name='verif_CAN_Messagerie', index=False, header=False, startrow=writer.sheets['verif_CAN_Messagerie'].max_row)
 
         else:
             # Create a new sheet if it doesn't exist
-            df.to_excel(writer, sheet_name='CAN_verif_XDM_Messagerie', index=False, header=True)
+            df.to_excel(writer, sheet_name='verif_CAN_Messagerie', index=False, header=True)
 
         writer.save()
 
@@ -179,27 +179,13 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
 
 # Clear the Excel file
 def clear_excel():
-    file_path = os.path.join(os.getcwd(), 'Output.xlsx')
-
-    # Create an Excel writer object
-    excel_writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
-    df = pd.DataFrame(columns=['Frame Name',
-    'Passed?',
-    'CanIdValue',
-    'Identifiant_t',
-    'CanIdValue/Identifiant_t',
-    'CanObjectType',
-    'UCE_Emetteur',
-    'CanObjectType/UCE_Emetteur',
-    'CanIdType',
-    'CanHandleType',
-    'CanControllerRef',
-    'CanFilterMaskRef',
-    'AEE10r3 Reseau_T',
-    'CanControllerRef/AEE10r3 Reseau_T',
-    'CanFilterMaskRef/AEE10r3 Reseau_T',])
-    df.to_excel(excel_writer, sheet_name='CAN_verif_XDM_Messagerie', index=False)
-    excel_writer.save()
+    sheet_name='verif_CAN_Messagerie'
+    if os.path.exists(file_path):
+        book = load_workbook(file_path)
+        if sheet_name in book.sheetnames:
+            sheet = book[sheet_name]
+            sheet.delete_rows(2, sheet.max_row)
+        book.save(file_path)
     completion_label.config(text="Output File Cleared", fg="blue")
 
 

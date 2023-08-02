@@ -146,21 +146,13 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
 
 # Clear the Excel file
 def clear_excel():
-
-    # Create an Excel writer object
-    excel_writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
-    df = pd.DataFrame(columns=['Frame Name',
-                    'Passed?',
-                    'Frame Type',
-                    'CanIfCanCtrlIdRef',
-                    'AEE10r3 Reseau_T',
-                    'CanIfCanCtrlIdRef/AEE10r3 Reseau_T',
-                    'CanIfCanHandleTypeRef',
-                    'CanIfCanHandleTypeRef/Frame Name',
-                    'CanIfIdSymRef',
-                    'CanIfIdSymRef/Frame Name'])
-    df.to_excel(excel_writer, sheet_name='CANIF_verif_PDU_Messagerie', index=False)
-    excel_writer.save()
+    sheet_name='CANIF_verif_PDU_Messagerie'
+    if os.path.exists(file_path):
+        book = load_workbook(file_path)
+        if sheet_name in book.sheetnames:
+            sheet = book[sheet_name]
+            sheet.delete_rows(2, sheet.max_row)
+        book.save(file_path)
     completion_label.config(text="Output File Cleared", fg="blue")
 
 
