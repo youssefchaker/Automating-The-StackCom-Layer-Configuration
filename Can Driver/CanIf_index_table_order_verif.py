@@ -56,20 +56,20 @@ def ordered_by_id_Rx(xdm_file):
         frames_data = [(name, obj_id) for name, obj_id in frames_data if obj_id.strip()]
         first_CanIfRxPduId = int(frames_data[0][1])
         if first_CanIfRxPduId != 0:
-            return "The first frame's CanIfRxPduId should be '0', but found '{first_CanIfRxPduId}'"
+            return "The first frame's CanIfRxPduId should be (0)', but found ("+str(first_CanIfRxPduId)+")"
 
         CanIfRxPduIds = [int(obj_id) for _, obj_id in frames_data]
         if len(CanIfRxPduIds) != len(set(CanIfRxPduIds)):
             duplicates = [frame_name for frame_name, obj_id in frames_data if CanIfRxPduIds.count(int(obj_id)) > 1]
             errorstring=""
             for frame_name in duplicates:
-                errorstring=errorstring+"The frame ("+frame_name+") has a duplicate CanIfRxPduId\n"
+                errorstring=errorstring+" "+"The frame ("+frame_name+") has a duplicate CanIfRxPduId\n"
             return errorstring
 
-        Last_CanIfRxPduIds = int(frames_data[-1][1])
+        Last_CanIfRxPduId = int(frames_data[-1][1])
         total_frames = len(frames_data)
-        if Last_CanIfRxPduIds != total_frames - 1:
-            return "The last frame's CanIfRxPduId should be '{total_frames - 1}', but found '{Last_CanIfRxPduIds}'"
+        if Last_CanIfRxPduId != total_frames - 1:
+            return "The last frame's CanIfRxPduId should be ("+str(total_frames-1)+"), but found ("+str(Last_CanIfRxPduId)+")"
 
         if any(int(frames_data[i - 1][1]) > int(frames_data[i][1]) for i in range(1, len(frames_data))):
             frame_name = frames_data[next(i for i in range(1, len(frames_data)) if int(frames_data[i - 1][1]) > int(frames_data[i][1]))][0]
@@ -94,7 +94,7 @@ def ordered_by_id_Tx(xdm_file):
 
         first_CanIfTxPduId = int(frames_data[0][1])
         if first_CanIfTxPduId != 0:
-            return "The first frame's CanIfRxPduId should be '0', but found '{first_CanIfTxPduId}'"
+            return "The first frame's CanIfTxPduId should be (0)', but found ("+str(first_CanIfTxPduId)+")"
 
         CanIfTxPduIds = [int(obj_id) for _, obj_id in frames_data]
         if len(CanIfTxPduIds) != len(set(CanIfTxPduIds)):
@@ -104,10 +104,10 @@ def ordered_by_id_Tx(xdm_file):
                 errorstring=errorstring+"The frame ("+frame_name+") has a duplicate CanIfRxPduId\n"
             return errorstring
 
-        Last_CanIfTxPduIds = int(frames_data[-1][1])
+        Last_CanIfTxPduId = int(frames_data[-1][1])
         total_frames = len(frames_data)
-        if Last_CanIfTxPduIds != total_frames - 1:
-            return "The last frame's CanIfRxPduId should be '{total_frames - 1}', but found '{Last_CanIfTxPduIds}'"
+        if Last_CanIfTxPduId != total_frames - 1:
+            return "The last frame's CanIfRxPduId should be ("+str(total_frames-1)+"), but found ("+str(Last_CanIfTxPduId)+")"
 
         if any(int(frames_data[i - 1][1]) > int(frames_data[i][1]) for i in range(1, len(frames_data))):
             frame_name = frames_data[next(i for i in range(1, len(frames_data)) if int(frames_data[i - 1][1]) > int(frames_data[i][1]))][0]

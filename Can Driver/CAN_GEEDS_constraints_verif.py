@@ -130,7 +130,7 @@ def ordered_by_id(xdm_file):
 
         first_can_object_id = int(frames_data[0][1])
         if first_can_object_id != 0:
-            return "The first frame's CanObjectId should be '0', but found '{first_can_object_id}'"
+            return "The first frame's CanObjectId should be (0), but found ("+str(first_can_object_id)+")"
 
         can_object_ids = [int(obj_id) for _, obj_id in frames_data]
         if len(can_object_ids) != len(set(can_object_ids)):
@@ -143,7 +143,7 @@ def ordered_by_id(xdm_file):
         last_can_object_id = int(frames_data[-1][1])
         total_frames = len(frames_data)
         if last_can_object_id != total_frames - 1:
-            return "The last frame's CanObjectId should be '{total_frames - 1}', but found '{last_can_object_id}'"
+            return "The last frame's CanObjectId should be ("+str(total_frames-1)+"), but found ("+str(last_can_object_id)+")"
 
         if any(int(frames_data[i - 1][1]) > int(frames_data[i][1]) for i in range(1, len(frames_data))):
             frame_name = frames_data[next(i for i in range(1, len(frames_data)) if int(frames_data[i - 1][1]) > int(frames_data[i][1]))][0]
