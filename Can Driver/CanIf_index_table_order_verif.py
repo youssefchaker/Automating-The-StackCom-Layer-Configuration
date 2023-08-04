@@ -45,43 +45,78 @@ def clear_excel():
     completion_label.config(text="Output File Cleared", fg="blue")
 
 
-#Ordering by CanObjectId
-def ordered_by_id(xdm_file):
+#Ordering by CanIfRxPduId
+def ordered_by_id_Rx(xdm_file):
+    try:
+        with open(xdm_file, 'r') as file:
+            xdm_content = file.read()
+        root = etree.fromstring(xdm_content)
+        ctr_elements = root.xpath(".//d:lst[@name='CanIfRxPduCfg']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
+        frames_data = [(ctr.attrib['name'], ctr.xpath("string(d:var[@name='CanIfRxPduId']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})) for ctr in ctr_elements]
+        frames_data = [(name, obj_id) for name, obj_id in frames_data if obj_id.strip()]
+        first_CanIfRxPduId = int(frames_data[0][1])
+        if first_CanIfRxPduId != 0:
+            return "The first frame's CanIfRxPduId should be '0', but found '{first_CanIfRxPduId}'"
+
+        CanIfRxPduIds = [int(obj_id) for _, obj_id in frames_data]
+        if len(CanIfRxPduIds) != len(set(CanIfRxPduIds)):
+            duplicates = [frame_name for frame_name, obj_id in frames_data if CanIfRxPduIds.count(int(obj_id)) > 1]
+            errorstring=""
+            for frame_name in duplicates:
+                errorstring=errorstring+"The frame ("+frame_name+") has a duplicate CanIfRxPduId\n"
+            return errorstring
+
+        Last_CanIfRxPduIds = int(frames_data[-1][1])
+        total_frames = len(frames_data)
+        if Last_CanIfRxPduIds != total_frames - 1:
+            return "The last frame's CanIfRxPduId should be '{total_frames - 1}', but found '{Last_CanIfRxPduIds}'"
+
+        if any(int(frames_data[i - 1][1]) > int(frames_data[i][1]) for i in range(1, len(frames_data))):
+            frame_name = frames_data[next(i for i in range(1, len(frames_data)) if int(frames_data[i - 1][1]) > int(frames_data[i][1]))][0]
+            return "The frame ("+frame_name+") has a jump in CanIfRxPduId"
+
+        return True
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+#Ordering by CanIfTxPduId
+def ordered_by_id_Tx(xdm_file):
     try:
         with open(xdm_file, 'r') as file:
             xdm_content = file.read()
 
         root = etree.fromstring(xdm_content)
-        ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
-
-        frames_data = [(ctr.attrib['name'], ctr.xpath("string(d:var[@name='CanObjectId']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})) for ctr in ctr_elements]
+        ctr_elements = root.xpath(".//d:lst[@name='CanIfTxPduCfg']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
+        frames_data = [(ctr.attrib['name'], ctr.xpath("string(d:var[@name='CanIfTxPduId']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})) for ctr in ctr_elements]
         frames_data = [(name, obj_id) for name, obj_id in frames_data if obj_id.strip()]
 
-        first_can_object_id = int(frames_data[0][1])
-        if first_can_object_id != 0:
-            return "The first frame's CanObjectId should be '0', but found '{first_can_object_id}'"
+        first_CanIfTxPduId = int(frames_data[0][1])
+        if first_CanIfTxPduId != 0:
+            return "The first frame's CanIfRxPduId should be '0', but found '{first_CanIfTxPduId}'"
 
-        can_object_ids = [int(obj_id) for _, obj_id in frames_data]
-        if len(can_object_ids) != len(set(can_object_ids)):
-            duplicates = [frame_name for frame_name, obj_id in frames_data if can_object_ids.count(int(obj_id)) > 1]
+        CanIfTxPduIds = [int(obj_id) for _, obj_id in frames_data]
+        if len(CanIfTxPduIds) != len(set(CanIfTxPduIds)):
+            duplicates = [frame_name for frame_name, obj_id in frames_data if CanIfTxPduIds.count(int(obj_id)) > 1]
             errorstring=""
             for frame_name in duplicates:
-                errorstring=errorstring+"The frame ("+frame_name+") has a duplicate CanObjectId\n"
+                errorstring=errorstring+"The frame ("+frame_name+") has a duplicate CanIfRxPduId\n"
             return errorstring
 
-        last_can_object_id = int(frames_data[-1][1])
+        Last_CanIfTxPduIds = int(frames_data[-1][1])
         total_frames = len(frames_data)
-        if last_can_object_id != total_frames - 1:
-            return "The last frame's CanObjectId should be '{total_frames - 1}', but found '{last_can_object_id}'"
+        if Last_CanIfTxPduIds != total_frames - 1:
+            return "The last frame's CanIfRxPduId should be '{total_frames - 1}', but found '{Last_CanIfTxPduIds}'"
 
         if any(int(frames_data[i - 1][1]) > int(frames_data[i][1]) for i in range(1, len(frames_data))):
             frame_name = frames_data[next(i for i in range(1, len(frames_data)) if int(frames_data[i - 1][1]) > int(frames_data[i][1]))][0]
-            return "The frame ("+frame_name+") has a jump in CanObjectId"
+            return "The frame ("+frame_name+") has a jump in CanIfRxPduId"
 
         return True
 
     except Exception as e:
-        print(f"Error occurred while processing the XDM file: {e}")
+        print(f"Error: {e}")
         return False
 
 def check_order():
@@ -89,8 +124,9 @@ def check_order():
     if not xdm_file_path:
         return
     result_data = {
-        'Passed?':["X" if ordered_by_CAN_Ref(xdm_file_path)==ordered_by_id(xdm_file_path)==ordered_by_RX_TX(xdm_file_path) else " "],
-        'Order by CanObjectId':[" " if ordered_by_id(xdm_file_path)==True else ordered_by_id(xdm_file_path)]
+        'Passed?':["X" if ordered_by_id_Rx(xdm_file_path)==ordered_by_id_Tx(xdm_file_path) else " "],
+        'Order by CanIfRxPduId':[" " if ordered_by_id_Rx(xdm_file_path)==True else ordered_by_id_Rx(xdm_file_path)],
+        'Order by CanIfTxPduId':[" " if ordered_by_id_Tx(xdm_file_path)==True else ordered_by_id_Tx(xdm_file_path)]
      }
     write_to_Excel(result_data,file_path)
     completion_label.config(text="Output Created", fg="green")
@@ -116,8 +152,8 @@ xml_file_label.grid(row=0, column=0)
 xdm_file_entry = tk.Entry(frame)
 xdm_file_entry.grid(row=0, column=1)
 
-xml_file_button = tk.Button(frame, text="Browse", command=browse_canif)
-xml_file_button.grid(row=0, column=2)
+xdm_file_button = tk.Button(frame, text="Browse", command=browse_canif)
+xdm_file_button.grid(row=0, column=2)
 
 check_receive_transmit_button = tk.Button(frame, text="Check Order", command=check_order)
 check_receive_transmit_button.grid(row=1, column=0, columnspan=3, pady=5)

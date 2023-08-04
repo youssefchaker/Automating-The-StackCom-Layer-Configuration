@@ -183,14 +183,14 @@ root.title("Can.xdm File Order Checker")
 frame = tk.Frame(root, padx=10, pady=10)
 frame.pack()
 
-xml_file_label = tk.Label(frame, text="Select CAN File:")
-xml_file_label.grid(row=0, column=0)
+xdm_file_label = tk.Label(frame, text="Select CAN File:")
+xdm_file_label.grid(row=0, column=0)
 
 xdm_file_entry = tk.Entry(frame)
 xdm_file_entry.grid(row=0, column=1)
 
-xml_file_button = tk.Button(frame, text="Browse", command=browse_xdm)
-xml_file_button.grid(row=0, column=2)
+xdm_file_button = tk.Button(frame, text="Browse", command=browse_xdm)
+xdm_file_button.grid(row=0, column=2)
 
 check_receive_transmit_button = tk.Button(frame, text="Check Order", command=check_all)
 check_receive_transmit_button.grid(row=1, column=0, columnspan=3, pady=5)
