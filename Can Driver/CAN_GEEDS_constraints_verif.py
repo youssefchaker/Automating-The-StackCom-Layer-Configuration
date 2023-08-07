@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
 from lxml import etree
-import logging
 import pandas as pd
 import tkinter as tk
 import os

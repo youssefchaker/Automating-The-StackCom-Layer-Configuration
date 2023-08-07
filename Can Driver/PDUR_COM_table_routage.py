@@ -67,9 +67,29 @@ def extract_PdurValues(xdm_file, frame_name):
     PduRDestPduRef=dest_elements[0].xpath("string(d:ref[2]/@value)", namespaces=namespace)
     return frame_type,PduRSrcPdu, PduRSrcBswModuleRef, PduRSrcPduRef,PduRSrcPduUpTxConf,PduRTransmissionConfirmation,PduRDestPduDataProvision,PduRDestBswModuleRef,PduRDestPduRef
 
+# Function to extract necessary attributes for the target frame from the .xdm file
+def Verif_RoutingGroupsValue(xdm_file, frame_name):
+    with open(xdm_file, 'r') as file:
+        xdm_content = file.read()
+
+    root = etree.fromstring(xdm_content)
+    namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd','a':'http://www.tresos.de/_projects/DataModel2/08/attribute.xsd'}
+    ctr_elements_Tx = root.xpath(".//d:lst[@name='PduRRoutingPathGroup']/d:ctr[@name='PduR_RoutingPathGrp_CanIf']/d:lst[@name='PduRDestPduRef']/d:ref[contains(@value, $name) and contains(@value, $name2)]", namespaces=namespace, name=frame_name,name2=frame_name+'_Dest')
+    ctr_elements_Rx = root.xpath(".//d:lst[@name='PduRRoutingPathGroup']/d:ctr[@name='PduR_RoutingPathGrp_Com']/d:lst[@name='PduRDestPduRef']/d:ref[contains(@value, $name) and contains(@value, $name2)]", namespaces=namespace, name=frame_name,name2=frame_name+'_Dest')
+    if ctr_elements_Tx and not ctr_elements_Rx:
+        return ctr_elements_Tx[0].get("value")
+
+    elif ctr_elements_Rx and not ctr_elements_Tx:
+        return ctr_elements_Rx[0].get("value")
+        
+    else:
+        return None
+
+
 def verify_frame(xdm_file_path, frame_name):
     try:
         frame_type,PduRSrcPdu, PduRSrcBswModuleRef, PduRSrcPduRef,PduRSrcPduUpTxConf,PduRTransmissionConfirmation,PduRDestPduDataProvision,PduRDestBswModuleRef,PduRDestPduRef = extract_PdurValues(xdm_file_path, frame_name)
+        PduRRoutingPathGroup=Verif_RoutingGroupsValue(xdm_file_path,frame_name)
         if frame_type == None and PduRSrcPdu == None and PduRSrcBswModuleRef == None and PduRSrcPduRef == None and PduRSrcPduUpTxConf == None and PduRTransmissionConfirmation == None and PduRDestPduDataProvision == None and PduRDestBswModuleRef == None and PduRDestPduRef == None:
             result_data = {
                 'Frame Name': [frame_name],
@@ -82,7 +102,25 @@ def verify_frame(xdm_file_path, frame_name):
                 'PduRTransmissionConfirmation':' ',
                 'PduRDestPduRef':' ',
                 'PduRDestPduDataProvision':' ',
-                'PduRDestBswModuleRef':' '
+                'PduRDestBswModuleRef':' ',
+                'PduRRoutingPathGroup':' '
+                }
+            write_to_Excel(result_data,file_path)
+            return False
+        elif PduRDestPduRef==None:
+            result_data = {
+                'Frame Name': [frame_name],
+                'Passed?':["Frame Not Found in PduRRoutingPathGroup"],
+                'Frame Type':[frame_type],
+                'PduRSrcPdu':' ',
+                'PduRSrcPduUpTxConf':' ',
+                'PduRSrcPduRef':' ',
+                'PduRSrcBswModuleRef':' ',
+                'PduRTransmissionConfirmation':' ',
+                'PduRDestPduRef':' ',
+                'PduRDestPduDataProvision':' ',
+                'PduRDestBswModuleRef':' ',
+                'PduRRoutingPathGroup':' '
                 }
             write_to_Excel(result_data,file_path)
             return False
@@ -104,26 +142,25 @@ def verify_frame(xdm_file_path, frame_name):
 
             if(frame_type=="Tx"):
                 #src specific
-                if(PduRSrcBswModuleRef!="/PduR/PduR/BswMod_Com"):
+                if(PduRSrcBswModuleRef!="ASPath:/PduR/PduR/BswMod_Com"):
                     PduRSrcBswModuleReftst=False
                 
                 #dest specific
                 
                 if(PduRDestPduDataProvision!="PDUR_DIRECT"):
                     PduRDestPduDataProvisiontst=False
-                if(PduRDestBswModuleRef!="/PduR/PduR/BswMod_CanIf"):
+                if(PduRDestBswModuleRef!="ASPath:/PduR/PduR/BswMod_CanIf"):
                     PduRDestBswModuleReftst=False
             
             elif(frame_type=="Rx"):
                 #src specific
-                if(PduRSrcBswModuleRef!="/PduR/PduR/BswMod_CanIf"):
+                if(PduRSrcBswModuleRef!="ASPath:/PduR/PduR/BswMod_CanIf"):
                     PduRSrcBswModuleReftst=False
                 #dest specific
-                if(PduRDestBswModuleRef!="/PduR/PduR/BswMod_Com"):
+                if(PduRDestBswModuleRef!="ASPath:/PduR/PduR/BswMod_Com"):
                     PduRDestBswModuleReftst=False
-                if(PduRDestPduDataProvision!="PDUR_UPPER"):
+                if(PduRDestPduDataProvision!="PduR_UPPER"):
                     PduRDestPduDataProvisiontst=False
-            print(PduRSrcPdutst, PduRSrcBswModuleReftst, PduRSrcPduReftst, PduRSrcPduUpTxConftst, PduRTransmissionConfirmationtst, PduRDestPduDataProvisiontst, PduRDestBswModuleReftst, PduRDestPduReftst)
             result_data = {
                 'Frame Name': [frame_name],
                 'Passed?':[" " if PduRSrcPdutst == False or PduRSrcBswModuleReftst == False or PduRSrcPduReftst == False or PduRSrcPduUpTxConftst == False or PduRTransmissionConfirmationtst == False or PduRDestPduDataProvisiontst == False or PduRDestBswModuleReftst == False or PduRDestPduReftst == False else "X"],
@@ -131,11 +168,12 @@ def verify_frame(xdm_file_path, frame_name):
                 'PduRSrcPdu':[PduRSrcPdu if PduRSrcPdutst else "Error(PduRSrcPdu is not "+frame_name+"_Src"+")"],
                 'PduRSrcPduUpTxConf':[PduRSrcPduUpTxConf if PduRSrcPduUpTxConftst else "Error(PduRSrcPduUpTxConf is not of the value 'true'"],
                 'PduRSrcPduRef':[PduRSrcPduRef if PduRSrcPduReftst else "Error(PduRSrcPduRef Mismatch)"],
-                'PduRSrcBswModuleRef':["Error(PduRSrcBswModuleRef is not '/PduR/PduR/BswMod_Com' for Tx frame )" if PduRSrcBswModuleReftst==False and frame_name=="Tx" else "Error(PduRSrcBswModuleRef is not '/PduR/PduR/BswMod_CanIf' for Rx frame )" if  PduRSrcBswModuleReftst==False and frame_name=="Rx" else PduRSrcBswModuleRef ],
+                'PduRSrcBswModuleRef':["Error(PduRSrcBswModuleRef is not '/PduR/PduR/BswMod_Com' for Tx frame )" if PduRSrcBswModuleReftst==False and frame_name=="Tx" else "Error(PduRSrcBswModuleRef is not '/PduR/PduR/BswMod_CanIf' for Rx frame )" if  PduRSrcBswModuleReftst==False and frame_name=="Rx" else PduRSrcBswModuleRef],
                 'PduRTransmissionConfirmation':[PduRTransmissionConfirmation if PduRTransmissionConfirmationtst else "Error(PduRTransmissionConfirmation is not of the value 'true'"],
                 'PduRDestPduRef':[PduRDestPduRef if PduRDestPduReftst else "Error(PduRDestPduRef Mismatch)"],
-                'PduRDestPduDataProvision':["Error(PduRDestPduDataProvision is not 'PDUR_DIRECT' for Tx frame )" if PduRDestPduDataProvisiontst==False and frame_name=="Tx" else "Error(PduRDestPduDataProvision is not 'PDUR_UPPER' for Rx frame )" if  PduRDestPduDataProvisiontst==False and frame_name=="Rx" else PduRDestPduDataProvision ],
-                'PduRDestBswModuleRef':["Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_CanIf' for Tx frame )" if PduRDestBswModuleReftst==False and frame_name=="Tx" else "Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_Com' for Rx frame )" if  PduRDestBswModuleReftst==False and frame_name=="Rx" else PduRDestBswModuleRef ]
+                'PduRDestPduDataProvision':["Error(PduRDestPduDataProvision is not 'PDUR_DIRECT' for Tx frame )" if PduRDestPduDataProvisiontst==False and frame_name=="Tx" else "Error(PduRDestPduDataProvision is not 'PduR_UPPER' for Rx frame )" if  PduRDestPduDataProvisiontst==False and frame_name=="Rx" else PduRDestPduDataProvision],
+                'PduRDestBswModuleRef':["Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_CanIf' for Tx frame )" if PduRDestBswModuleReftst==False and frame_name=="Tx" else "Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_Com' for Rx frame )" if  PduRDestBswModuleReftst==False and frame_name=="Rx" else PduRDestBswModuleRef ],
+                'PduRRoutingPathGroup':[PduRRoutingPathGroup]
             }
             write_to_Excel(result_data,file_path)
 

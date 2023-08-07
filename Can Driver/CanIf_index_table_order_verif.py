@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
 from lxml import etree
-import logging
 import pandas as pd
 import tkinter as tk
 import os
@@ -94,7 +93,7 @@ def ordered_by_id_Tx(xdm_file):
 
         first_CanIfTxPduId = int(frames_data[0][1])
         if first_CanIfTxPduId != 0:
-            return "The first frame's CanIfTxPduId should be (0)', but found ("+str(first_CanIfTxPduId)+")"
+            return "The first frame's CanIfTxPduId should be (0), but found ("+str(first_CanIfTxPduId)+")"
 
         CanIfTxPduIds = [int(obj_id) for _, obj_id in frames_data]
         if len(CanIfTxPduIds) != len(set(CanIfTxPduIds)):
