@@ -1,49 +1,12 @@
+import statfuncs
+from statfuncs import clear_excel,write_to_Excel,file_path
 import tkinter as tk
-from tkinter import filedialog
 from lxml import etree
-import pandas as pd
-import tkinter as tk
-import os
-from openpyxl import load_workbook
+from tkinter import filedialog
 
-file_path = os.path.join(os.getcwd(), 'Output.xlsx')
+sheet_name="CAN_verif_Geeds"
 
-def write_to_Excel(result_data, file_path):
-    df = pd.DataFrame(result_data)
-
-    if not os.path.exists(file_path):
-        # Create the Excel file with the specified columns
-        df.to_excel(file_path, sheet_name='CAN_verif_Geeds', index=False, header=True)
-    else:
-        # Load the existing workbook
-        book = load_workbook(file_path)
-        writer = pd.ExcelWriter(file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay')
-        writer.book = book
-
-        if 'CAN_verif_Geeds' in pd.ExcelFile(file_path).sheet_names:
-            # Check if the 'Passed?' column already exists in the sheet
-            sheet = book['CAN_verif_Geeds']
-            # Append the data to the existing sheet
-            df.to_excel(writer, sheet_name='CAN_verif_Geeds', index=False, header=False, startrow=writer.sheets['CAN_verif_Geeds'].max_row)
-
-        else:
-            # Create a new sheet if it doesn't exist
-            df.to_excel(writer, sheet_name='CAN_verif_Geeds', index=False, header=True)
-
-        writer.save()
-
-# Clear the Excel file
-def clear_excel():
-    sheet_name='CAN_verif_Geeds'
-    if os.path.exists(file_path):
-        book = load_workbook(file_path)
-        if sheet_name in book.sheetnames:
-            sheet = book[sheet_name]
-            sheet.delete_rows(2, sheet.max_row)
-        book.save(file_path)
-    completion_label.config(text="Output File Cleared", fg="blue")
-
-#Ordering by TRANSMIT and RECIEVE
+#Order by TRANSMIT and RECIEVE check
 def ordered_by_RX_TX(xdm_file):
     try:
         with open(xdm_file, 'r') as file:
@@ -70,7 +33,7 @@ def ordered_by_RX_TX(xdm_file):
         print(f"Error occurred while processing the XDM file: {e}")
         return False
 
-#Ordering by Cancontrollerref
+#Ordering by Cancontrollerref check
 def ordered_by_CAN_Ref(xdm_file):
     expected_order = ['CAN_2', 'CAN_1', 'CAN_DEVAID', 'CAN_3']
     try:
@@ -115,7 +78,7 @@ def ordered_by_CAN_Ref(xdm_file):
         return False
 
 
-#Ordering by CanObjectId
+#Ordering by CanObjectId check
 def ordered_by_id(xdm_file):
     try:
         with open(xdm_file, 'r') as file:
@@ -154,6 +117,7 @@ def ordered_by_id(xdm_file):
         print(f"Error occurred while processing the XDM file: {e}")
         return False
 
+#check all 3 tests at once 
 def check_all():
     xdm_file_path = xdm_file_entry.get()
     if not xdm_file_path:
@@ -164,10 +128,9 @@ def check_all():
         'Order by CanControllerRef':[" " if ordered_by_CAN_Ref(xdm_file_path)==True else ordered_by_CAN_Ref(xdm_file_path)],
         'Order by CanObjectId':[" " if ordered_by_id(xdm_file_path)==True else ordered_by_id(xdm_file_path)]
      }
-    write_to_Excel(result_data,file_path)
+    write_to_Excel(result_data,file_path,sheet_name)
     completion_label.config(text="Output Created", fg="green")
 
-    
 #open the xdm file
 def browse_xdm():
     xdm_file_path = filedialog.askopenfilename(filetypes=[("XDM files", "*XDM")])
@@ -175,6 +138,10 @@ def browse_xdm():
         return
     xdm_file_entry.delete(0, tk.END)
     xdm_file_entry.insert(tk.END, xdm_file_path)
+
+def excel_output(sheet_name):
+    clear_excel(sheet_name)
+    completion_label.config(text="Output File Cleared", fg="blue")
 
 root = tk.Tk()
 root.title("Can.xdm File Order Checker")
@@ -194,10 +161,12 @@ xdm_file_button.grid(row=0, column=2)
 check_receive_transmit_button = tk.Button(frame, text="Check Order", command=check_all)
 check_receive_transmit_button.grid(row=1, column=0, columnspan=3, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Excel", command=clear_excel)
+clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:excel_output(sheet_name))
 clear_excel_button.grid(row=2, column=0, columnspan=3, pady=5)
 
 completion_label = tk.Label(frame, text="", fg="green")
 completion_label.grid(row=7, column=0, columnspan=3, padx=5, pady=5)
+
+
 
 root.mainloop()
