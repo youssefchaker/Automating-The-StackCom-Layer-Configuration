@@ -202,7 +202,7 @@ frame_entry.grid(row=2, column=1, padx=5, pady=5)
 verify_button = tk.Button(frame, text="Verify", command=verify_button_click)
 verify_button.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:clean_output(sheet_name))
+clear_excel_button = tk.Button(frame, text="Clear Output", command=lambda:clean_output(sheet_name))
 clear_excel_button.grid(row=6, column=0, columnspan=3, padx=5, pady=5)
 
 completion_label = tk.Label(frame, text="", fg="green")

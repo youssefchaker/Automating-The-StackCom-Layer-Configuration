@@ -16,9 +16,18 @@ expected_headers = {'FRAMES': ['Checked','Radical', 'Activation trame', 'Protoco
 
 # Function to clean the Excel data and keep only the necessary columns
 def cleanExcelData(excel_file):
-    df = pd.read_excel(excel_file, sheet_name='FRAMES', header=0)
+    df = pd.read_excel(excel_file, sheet_name='FRAMES', header=None, skiprows=2)  # Skip first two rows
+    df.columns = df.iloc[0]  # Use the third row as column names
+    df = df.iloc[1:]  # Drop the second row (previous header)
+    
     headers = [col for col in df.columns if col in expected_headers['FRAMES']]
-    return df[headers]
+    df = df[headers]
+    
+    # Filter rows based on 'checked' column
+    df = df[df['Checked'] == 'X']
+    
+    return df
+
 
 #function responsible for writiting the output to the excel file
 def write_to_Excel(result_data, file_path,sheet_name):

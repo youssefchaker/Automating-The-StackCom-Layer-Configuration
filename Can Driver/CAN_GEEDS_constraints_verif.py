@@ -121,9 +121,9 @@ def check_all():
         return
     result_data = {
         'Passed?':["X" if ordered_by_CAN_Ref(xdm_file_path)==ordered_by_id(xdm_file_path)==ordered_by_RX_TX(xdm_file_path) else " "],
-        'Order by RX_TX':[" " if ordered_by_RX_TX(xdm_file_path)==True else ordered_by_RX_TX(xdm_file_path)],
-        'Order by CanControllerRef':[" " if ordered_by_CAN_Ref(xdm_file_path)==True else ordered_by_CAN_Ref(xdm_file_path)],
-        'Order by CanObjectId':[" " if ordered_by_id(xdm_file_path)==True else ordered_by_id(xdm_file_path)]
+        'Order by RX_TX Errors':["None" if ordered_by_RX_TX(xdm_file_path)==True else ordered_by_RX_TX(xdm_file_path)],
+        'Order by CanControllerRef Errors':["None" if ordered_by_CAN_Ref(xdm_file_path)==True else ordered_by_CAN_Ref(xdm_file_path)],
+        'Order by CanObjectId Errors':["None" if ordered_by_id(xdm_file_path)==True else ordered_by_id(xdm_file_path)]
      }
     write_to_Excel(result_data,file_path,sheet_name)
     completion_label.config(text="Output Created", fg="green")
@@ -141,7 +141,7 @@ def clean_output(sheet_name):
     completion_label.config(text="Output File Cleared", fg="blue")
 
 root = tk.Tk()
-root.title("Can.xdm File Order Checker")
+root.title("Can Order Checker")
 
 frame = tk.Frame(root, padx=10, pady=10)
 frame.pack()
@@ -158,7 +158,7 @@ xdm_file_button.grid(row=0, column=2)
 check_receive_transmit_button = tk.Button(frame, text="Check Order", command=check_all)
 check_receive_transmit_button.grid(row=1, column=0, columnspan=3, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:clean_output(sheet_name))
+clear_excel_button = tk.Button(frame, text="Clear Output", command=lambda:clean_output(sheet_name))
 clear_excel_button.grid(row=2, column=0, columnspan=3, pady=5)
 
 completion_label = tk.Label(frame, text="", fg="green")

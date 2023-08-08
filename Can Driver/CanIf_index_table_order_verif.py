@@ -9,8 +9,8 @@ def check_order():
         return
     result_data = {
         'Passed?':["X" if ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')==ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg') else " "],
-        'Order by CanIfRxPduId':[" " if ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg')==True else ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg')],
-        'Order by CanIfTxPduId':[" " if ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')==True else ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')]
+        'Order by CanIfRxPduId':["None" if ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg')==True else ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg')],
+        'Order by CanIfTxPduId':["None" if ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')==True else ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')]
      }
     write_to_Excel(result_data,file_path,sheet_name)
     completion_label.config(text="Output Created", fg="green")
@@ -48,7 +48,7 @@ check_receive_transmit_button.grid(row=1, column=0, columnspan=3, pady=5)
 completion_label = tk.Label(frame, text="", fg="green")
 completion_label.grid(row=7, column=0, columnspan=3, padx=5, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:clean_output(sheet_name))
+clear_excel_button = tk.Button(frame, text="Clear Output", command=lambda:clean_output(sheet_name))
 clear_excel_button.grid(row=2, column=0, columnspan=3, pady=5)
 
 root.mainloop()

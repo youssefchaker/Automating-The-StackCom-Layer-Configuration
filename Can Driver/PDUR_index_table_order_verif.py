@@ -14,10 +14,10 @@ def check_order():
         return
     result_data = {
         'Passed?':["X" if ordered_by_id_PDUR(xdm_file_path,nodes_src_Tx)==True and ordered_by_id_PDUR(xdm_file_path,nodes_dest_Tx)==True and ordered_by_id_PDUR(xdm_file_path,nodes_src_Rx)==True and ordered_by_id_PDUR(xdm_file_path,nodes_dest_Rx)==True else " "],
-        'Order by Tx_PduRSourcePduHandleId':[" " if ordered_by_id_PDUR(xdm_file_path,nodes_src_Tx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_src_Tx)],
-        'Order by Tx_PduRDestPduHandleId':[" " if ordered_by_id_PDUR(xdm_file_path,nodes_dest_Tx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_dest_Tx)],
-        'Order by Rx_PduRSourcePduHandleId':[" " if ordered_by_id_PDUR(xdm_file_path,nodes_src_Rx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_src_Rx)],
-        'Order by Rx_PduRDestPduHandleId':[" " if ordered_by_id_PDUR(xdm_file_path,nodes_dest_Rx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_dest_Rx)]
+        'Order by Tx_PduRSourcePduHandleId':["None" if ordered_by_id_PDUR(xdm_file_path,nodes_src_Tx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_src_Tx)],
+        'Order by Tx_PduRDestPduHandleId':["None" if ordered_by_id_PDUR(xdm_file_path,nodes_dest_Tx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_dest_Tx)],
+        'Order by Rx_PduRSourcePduHandleId':["None" if ordered_by_id_PDUR(xdm_file_path,nodes_src_Rx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_src_Rx)],
+        'Order by Rx_PduRDestPduHandleId':["None" if ordered_by_id_PDUR(xdm_file_path,nodes_dest_Rx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_dest_Rx)]
         
      }
     write_to_Excel(result_data,file_path,sheet_name)
@@ -54,7 +54,7 @@ xdm_file_button.grid(row=0, column=2)
 check_receive_transmit_button = tk.Button(frame, text="Check Order", command=check_order)
 check_receive_transmit_button.grid(row=1, column=0, columnspan=3, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:clean_output(sheet_name))
+clear_excel_button = tk.Button(frame, text="Clear Output", command=lambda:clean_output(sheet_name))
 clear_excel_button.grid(row=2, column=0, columnspan=3, pady=5)
 
 completion_label = tk.Label(frame, text="", fg="green")
