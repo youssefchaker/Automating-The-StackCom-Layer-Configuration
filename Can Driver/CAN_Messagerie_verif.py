@@ -1,45 +1,10 @@
-import pandas as pd
+import statfuncs
+from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelData
 import tkinter as tk
-import os
 from tkinter import filedialog
 from lxml import etree
-from openpyxl import load_workbook
 
-file_path = os.path.join(os.getcwd(), 'Output.xlsx')
-
-# Define expected headers for cleaning the Excel data
-expected_headers = {'FRAMES': ['Radical', 'Activation trame', 'Protocole_M', 'Identifiant_T', 'Taille_Max_T', 'Lmin_T', 'Mode_Transmission_T', 'Nature_Evenement_FR_T', 'Nature_Evenement_GB_T', 'Periode_T', 'UCE Emetteur', 'AEE10r3 Reseau_T']}
-
-# Function to clean the Excel data and keep only the necessary columns
-def cleanExcelData(excel_file):
-    df = pd.read_excel(excel_file, sheet_name='FRAMES', header=0)
-    headers = [col for col in df.columns if col in expected_headers['FRAMES']]
-    return df[headers]
-
-# Function to write data to Excel file
-def write_to_Excel(result_data, file_path):
-    df = pd.DataFrame(result_data)
-
-    if not os.path.exists(file_path):
-        # Create the Excel file with the specified columns
-        df.to_excel(file_path, sheet_name='verif_CAN_Messagerie', index=False, header=True)
-    else:
-        # Load the existing workbook
-        book = load_workbook(file_path)
-        writer = pd.ExcelWriter(file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay')
-        writer.book = book
-
-        if 'verif_CAN_Messagerie' in pd.ExcelFile(file_path).sheet_names:
-            sheet = book['verif_CAN_Messagerie']
-            # Append the data to the existing sheet
-            df.to_excel(writer, sheet_name='verif_CAN_Messagerie', index=False, header=False, startrow=writer.sheets['verif_CAN_Messagerie'].max_row)
-
-        else:
-            # Create a new sheet if it doesn't exist
-            df.to_excel(writer, sheet_name='verif_CAN_Messagerie', index=False, header=True)
-
-        writer.save()
-
+sheet_name="CAN_Messagerie_verif"
 
 # Function to extract necessary attributes for the target frame from the .xdm file
 def extract_CanValues(xdm_file, frame_name):
@@ -85,7 +50,7 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
                 'CanControllerRef/AEE10r3 Reseau_T': [" "],
                 'CanFilterMaskRef/AEE10r3 Reseau_T': [" "],
             }
-            write_to_Excel(result_data,file_path)
+            write_to_Excel(result_data,file_path,'CAN_Messagerie_verif')
             return False
         else:
             
@@ -111,7 +76,7 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
                     'CanControllerRef/AEE10r3 Reseau_T': [" "],
                     'CanFilterMaskRef/AEE10r3 Reseau_T': [" "],
                 }
-                write_to_Excel(result_data,file_path)
+                write_to_Excel(result_data,file_path,'CAN_Messagerie_verif')
                 return False
             else:
 
@@ -171,23 +136,10 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
                     'CanControllerRef/AEE10r3 Reseau_T Errors': ['Error (CanControllerRef Mismatch)' if CanControllerReftst==False else "None"],
                     'CanFilterMaskRef/AEE10r3 Reseau_T Errors': ['Error (CanFilterMaskRef Mismatch)' if CanFilterMaskReftst==False else "None"],
                 }
-                write_to_Excel(result_data,file_path)
+                write_to_Excel(result_data,file_path,'CAN_Messagerie_verif')
     except Exception as e:
                 print(f"Error occurred : {e}")
                 return False   
-
-
-# Clear the Excel file
-def clear_excel():
-    sheet_name='verif_CAN_Messagerie'
-    if os.path.exists(file_path):
-        book = load_workbook(file_path)
-        if sheet_name in book.sheetnames:
-            sheet = book[sheet_name]
-            sheet.delete_rows(2, sheet.max_row)
-        book.save(file_path)
-    completion_label.config(text="Output File Cleared", fg="blue")
-
 
 #select the excel file from the interface
 def browse_excel():
@@ -215,6 +167,10 @@ def verify_button_click():
 
     verify_frame(excel_file_path, xdm_file_path, frame_name)
     completion_label.config(text="Output Created", fg="green")
+
+def clean_output(sheet_name):
+    clear_excel(sheet_name)
+    completion_label.config(text="Output File Cleared", fg="blue")
 
 # Create the GUI
 root = tk.Tk()
@@ -250,7 +206,7 @@ frame_entry.grid(row=2, column=1, padx=5, pady=5)
 verify_button = tk.Button(frame, text="Verify", command=verify_button_click)
 verify_button.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Excel", command=clear_excel)
+clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:clean_output(sheet_name))
 clear_excel_button.grid(row=6, column=0, columnspan=3, padx=5, pady=5)
 
 completion_label = tk.Label(frame, text="", fg="green")

@@ -1,35 +1,10 @@
-import pandas as pd
+import statfuncs
+from statfuncs import clear_excel,write_to_Excel,file_path
 import tkinter as tk
-import os
 from tkinter import filedialog
 from lxml import etree
-from openpyxl import load_workbook
 
-file_path = os.path.join(os.getcwd(), 'Output.xlsx')
-
-# Function to write data to Excel file
-def write_to_Excel(result_data, file_path):
-    df = pd.DataFrame(result_data)
-
-    if not os.path.exists(file_path):
-        # Create the Excel file with the specified columns
-        df.to_excel(file_path, sheet_name='PDUR_COM_table_routage', index=False, header=True)
-    else:
-        # Load the existing workbook
-        book = load_workbook(file_path)
-        writer = pd.ExcelWriter(file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay')
-        writer.book = book
-
-        if 'PDUR_COM_table_routage' in pd.ExcelFile(file_path).sheet_names:
-            sheet = book['PDUR_COM_table_routage']
-            # Append the data to the existing sheet
-            df.to_excel(writer, sheet_name='PDUR_COM_table_routage', index=False, header=False, startrow=writer.sheets['PDUR_COM_table_routage'].max_row)
-
-        else:
-            # Create a new sheet if it doesn't exist
-            df.to_excel(writer, sheet_name='PDUR_COM_table_routage', index=False, header=True)
-
-        writer.save()
+sheet_name="PDUR_COM_table_routage"
 
 # Function to extract necessary attributes for the target frame from the .xdm file
 def extract_PdurValues(xdm_file, frame_name):
@@ -105,7 +80,7 @@ def verify_frame(xdm_file_path, frame_name):
                 'PduRDestBswModuleRef':' ',
                 'PduRRoutingPathGroup':' '
                 }
-            write_to_Excel(result_data,file_path)
+            write_to_Excel(result_data,file_path,'PDUR_COM_table_routage')
             return False
         elif PduRDestPduRef==None:
             result_data = {
@@ -122,7 +97,7 @@ def verify_frame(xdm_file_path, frame_name):
                 'PduRDestBswModuleRef':' ',
                 'PduRRoutingPathGroup':' '
                 }
-            write_to_Excel(result_data,file_path)
+            write_to_Excel(result_data,file_path,'PDUR_COM_table_routage')
             return False
         else:
             PduRSrcPdutst=PduRSrcBswModuleReftst=PduRSrcPduReftst=PduRSrcPduUpTxConftst=PduRTransmissionConfirmationtst=PduRDestPduDataProvisiontst=PduRDestBswModuleReftst=PduRDestPduReftst=True
@@ -175,23 +150,11 @@ def verify_frame(xdm_file_path, frame_name):
                 'PduRDestBswModuleRef':["Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_CanIf' for Tx frame )" if PduRDestBswModuleReftst==False and frame_name=="Tx" else "Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_Com' for Rx frame )" if  PduRDestBswModuleReftst==False and frame_name=="Rx" else PduRDestBswModuleRef ],
                 'PduRRoutingPathGroup':[PduRRoutingPathGroup]
             }
-            write_to_Excel(result_data,file_path)
+            write_to_Excel(result_data,file_path,'PDUR_COM_table_routage')
 
     except Exception as e:
                 print(f"Error occurred : {e}")
                 return False     
-
-
-# Clear the Excel file
-def clear_excel():
-    sheet_name='PDUR_COM_table_routage'
-    if os.path.exists(file_path):
-        book = load_workbook(file_path)
-        if sheet_name in book.sheetnames:
-            sheet = book[sheet_name]
-            sheet.delete_rows(2, sheet.max_row)
-        book.save(file_path)
-    completion_label.config(text="Output File Cleared", fg="blue")
 
 
 #select the xdm file from the interface
@@ -209,6 +172,10 @@ def verify_button_click():
     frame_name = frame_entry.get()
     verify_frame(xdm_file_path, frame_name)
     completion_label.config(text="Output Created", fg="green")
+
+def clean_output(sheet_name):
+    clear_excel(sheet_name)
+    completion_label.config(text="Output File Cleared", fg="blue")
 
 
 # Create the GUI
@@ -236,7 +203,7 @@ frame_entry.grid(row=2, column=1, padx=5, pady=5)
 verify_button = tk.Button(frame, text="Verify", command=verify_button_click)
 verify_button.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Excel", command=clear_excel)
+clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:clean_output(sheet_name))
 clear_excel_button.grid(row=6, column=0, columnspan=3, padx=5, pady=5)
 
 completion_label = tk.Label(frame, text="", fg="green")

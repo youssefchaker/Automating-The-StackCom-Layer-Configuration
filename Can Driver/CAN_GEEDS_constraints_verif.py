@@ -139,7 +139,7 @@ def browse_xdm():
     xdm_file_entry.delete(0, tk.END)
     xdm_file_entry.insert(tk.END, xdm_file_path)
 
-def excel_output(sheet_name):
+def clean_output(sheet_name):
     clear_excel(sheet_name)
     completion_label.config(text="Output File Cleared", fg="blue")
 
@@ -161,7 +161,7 @@ xdm_file_button.grid(row=0, column=2)
 check_receive_transmit_button = tk.Button(frame, text="Check Order", command=check_all)
 check_receive_transmit_button.grid(row=1, column=0, columnspan=3, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:excel_output(sheet_name))
+clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:clean_output(sheet_name))
 clear_excel_button.grid(row=2, column=0, columnspan=3, pady=5)
 
 completion_label = tk.Label(frame, text="", fg="green")

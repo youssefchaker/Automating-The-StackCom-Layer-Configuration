@@ -4,6 +4,7 @@ from openpyxl import load_workbook
 from lxml import etree
 #the excel output file file path
 file_path = os.path.join(os.getcwd(), 'Output.xlsx')
+namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd','a':'http://www.tresos.de/_projects/DataModel2/08/attribute.xsd'}
 
 
 #function responsible for writiting the output to the excel file
@@ -37,40 +38,90 @@ def clear_excel(sheet_name):
         book = load_workbook(file_path)
         if sheet_name in book.sheetnames:
             sheet = book[sheet_name]
-            sheet.delete_rows(2, sheet.max_row)
+            sheet.delete_rows(2, sheet.max_row - 1) 
         book.save(file_path)
     
 
-#Ordering by index table
-def ordered_by_id(xdm_file,order_var):
+#Ordering by index table CanIF
+def ordered_by_id_CanIf(xdm_file,order_var,parent):
     try:
         with open(xdm_file, 'r') as file:
             xdm_content = file.read()
         root = etree.fromstring(xdm_content)
-        namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd','a':'http://www.tresos.de/_projects/DataModel2/08/attribute.xsd'}
-        elements = root.xpath(".//d:lst[@name='"+order_var+"']/d:ctr", namespaces=namespace)
-        frames_data = [(ctr.attrib['name'], ctr.xpath("string(d:var[@name='"+order_var+"']/@value)", namespaces=namespace)) for ctr in elements]
+        elements = root.xpath(f".//d:lst[@name='{parent}']/d:ctr", namespaces=namespace)
+        frames_data = [(ctr.attrib['name'], ctr.xpath(f"string(d:var[@name='{order_var}']/@value)", namespaces=namespace)) for ctr in elements]
         frames_data = [(name, Id) for name, Id in frames_data if Id.strip()]
         first_Id = int(frames_data[0][1])
         if first_Id != 0:
-            return "The first frame's '"+order_var+"' should be (0)', but found ("+str(first_Id)+")"
+            return "The first frame's ("+order_var+") should be (0)', but found ("+str(first_Id)+")."
 
         Ids = [int(Id) for _, Id in frames_data]
         if len(Ids) != len(set(Ids)):
             duplicates = [frame_name for frame_name, Id in frames_data if Ids.count(int(Id)) > 1]
             errorstring=""
             for frame_name in duplicates:
-                errorstring=errorstring+" "+"The frame ("+frame_name+") has a duplicate '"+order_var+"'\n"
+                errorstring=errorstring+" "+"The frame ("+frame_name+") has a duplicate ("+order_var+").\n"
             return errorstring
 
         Last_Id = int(frames_data[-1][1])
         total_frames = len(frames_data)
         if Last_Id != total_frames - 1:
-            return "The last frame's '"+order_var+"' should be ("+str(total_frames-1)+"), but found ("+str(Last_Id)+")"
+            return "The last frame's ("+order_var+") should be ("+str(total_frames-1)+"), but found ("+str(Last_Id)+")."
 
         if any(int(frames_data[i - 1][1]) > int(frames_data[i][1]) for i in range(1, len(frames_data))):
             frame_name = frames_data[next(i for i in range(1, len(frames_data)) if int(frames_data[i - 1][1]) > int(frames_data[i][1]))][0]
-            return "The frame ("+frame_name+") has a jump in '"+order_var+"'"
+            return "The frame ("+frame_name+") has a jump in ("+order_var+")."
+
+        return True
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+# Define expected headers for cleaning the Excel data
+expected_headers = {'FRAMES': ['Radical', 'Activation trame', 'Protocole_M', 'Identifiant_T', 'Taille_Max_T', 'Lmin_T', 'Mode_Transmission_T', 'Nature_Evenement_FR_T', 'Nature_Evenement_GB_T', 'Periode_T', 'UCE Emetteur', 'AEE10r3 Reseau_T']}
+
+# Function to clean the Excel data and keep only the necessary columns
+def cleanExcelData(excel_file):
+    df = pd.read_excel(excel_file, sheet_name='FRAMES', header=0)
+    headers = [col for col in df.columns if col in expected_headers['FRAMES']]
+    return df[headers]
+
+#Ordering by index table PDUR
+def ordered_by_id_PDUR(xdm_file,nodes):
+    try:
+        with open(xdm_file, 'r') as file:
+            xdm_content = file.read()
+
+        root = etree.fromstring(xdm_content)
+        if(nodes[2]=='PduRDestPdu'):
+            ctr_elements = root.xpath(f".//d:ctr[@name='{nodes[0]}']/d:lst[@name='{nodes[1]}']/d:ctr/d:lst[@name='{nodes[2]}']/d:ctr", namespaces=namespace)
+            frames_data = [(ctr.attrib['name'], ctr.xpath(f"string(.//d:var[@name='{nodes[3]}']/@value)", namespaces=namespace)) for ctr in ctr_elements]
+        else:
+            elements = root.xpath(f".//d:ctr[@name='{nodes[0]}']/d:lst[@name='{nodes[1]}']/d:ctr", namespaces=namespace)
+            frames_data = [(ctr.attrib['name'], ctr.xpath(f"string(.//d:ctr[@name='{nodes[2]}']/d:var[@name='{nodes[3]}']/@value)", namespaces=namespace)) for ctr in elements]
+
+        frames_data = [(name, Id) for name, Id in frames_data if Id.strip()]
+        first_Id = int(frames_data[0][1])
+        if first_Id != 0:
+            return "The first frame's ("+nodes[3]+") should be (0), but found ("+str(first_Id)+")."
+
+        Ids = [int(Id) for _, Id in frames_data]
+        if len(Ids) != len(set(Ids)):
+            duplicates = [frame_name for frame_name, Id in frames_data if Ids.count(int(Id)) > 1]
+            errorstring=""
+            for frame_name in duplicates:
+                errorstring=errorstring+"The frame ("+frame_name+") has a duplicate ("+nodes[3]+").\n"
+            return errorstring
+
+        Last_Id = int(frames_data[-1][1])
+        total_frames = len(frames_data)
+        if Last_Id != total_frames - 1:
+            return "The last frame's ("+nodes[3]+") should be ("+str(total_frames-1)+"), but found ("+str(Last_Id)+")."
+
+        if any(int(frames_data[i - 1][1]) > int(frames_data[i][1]) for i in range(1, len(frames_data))):
+            frame_name = frames_data[next(i for i in range(1, len(frames_data)) if int(frames_data[i - 1][1]) > int(frames_data[i][1]))][0]
+            return "The frame ("+frame_name+") has a jump in ("+nodes[3]+")."
 
         return True
 

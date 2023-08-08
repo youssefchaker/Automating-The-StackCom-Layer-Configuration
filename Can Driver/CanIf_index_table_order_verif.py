@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,ordered_by_id
+from statfuncs import clear_excel,write_to_Excel,file_path,ordered_by_id_CanIf
 import tkinter as tk
 from tkinter import filedialog
 
@@ -10,14 +10,14 @@ def check_order():
     if not xdm_file_path:
         return
     result_data = {
-        'Passed?':["X" if ordered_by_id(xdm_file_path,'CanIfTxPduId')==ordered_by_id(xdm_file_path,'CanIfRxPduId') else " "],
-        'Order by CanIfRxPduId':[" " if ordered_by_id(xdm_file_path,'CanIfRxPduId')==True else ordered_by_id(xdm_file_path,'CanIfRxPduId')],
-        'Order by CanIfTxPduId':[" " if ordered_by_id(xdm_file_path,'CanIfTxPduId')==True else ordered_by_id(xdm_file_path,'CanIfTxPduId')]
+        'Passed?':["X" if ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')==ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg') else " "],
+        'Order by CanIfRxPduId':[" " if ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg')==True else ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg')],
+        'Order by CanIfTxPduId':[" " if ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')==True else ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')]
      }
     write_to_Excel(result_data,file_path,sheet_name)
     completion_label.config(text="Output Created", fg="green")
 
-def excel_output(sheet_name):
+def clean_output(sheet_name):
     clear_excel(sheet_name)
     completion_label.config(text="Output File Cleared", fg="blue")
     
@@ -50,7 +50,7 @@ check_receive_transmit_button.grid(row=1, column=0, columnspan=3, pady=5)
 completion_label = tk.Label(frame, text="", fg="green")
 completion_label.grid(row=7, column=0, columnspan=3, padx=5, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:excel_output(sheet_name))
+clear_excel_button = tk.Button(frame, text="Clear Excel", command=lambda:clean_output(sheet_name))
 clear_excel_button.grid(row=2, column=0, columnspan=3, pady=5)
 
 root.mainloop()
