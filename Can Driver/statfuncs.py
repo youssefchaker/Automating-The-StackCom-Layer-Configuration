@@ -2,10 +2,23 @@ import pandas as pd
 import os
 from openpyxl import load_workbook
 from lxml import etree
+import tkinter as tk
+from tkinter import filedialog
+
 #the excel output file file path
 file_path = os.path.join(os.getcwd(), 'Output.xlsx')
+
+#the namespace used for the XDM documents
 namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd','a':'http://www.tresos.de/_projects/DataModel2/08/attribute.xsd'}
 
+# Define expected headers for cleaning the Excel data
+expected_headers = {'FRAMES': ['Checked','Radical', 'Activation trame', 'Protocole_M', 'Identifiant_T', 'Taille_Max_T', 'Lmin_T', 'Mode_Transmission_T', 'Nature_Evenement_FR_T', 'Nature_Evenement_GB_T', 'Periode_T', 'UCE Emetteur', 'AEE10r3 Reseau_T']}
+
+# Function to clean the Excel data and keep only the necessary columns
+def cleanExcelData(excel_file):
+    df = pd.read_excel(excel_file, sheet_name='FRAMES', header=0)
+    headers = [col for col in df.columns if col in expected_headers['FRAMES']]
+    return df[headers]
 
 #function responsible for writiting the output to the excel file
 def write_to_Excel(result_data, file_path,sheet_name):
@@ -77,15 +90,6 @@ def ordered_by_id_CanIf(xdm_file,order_var,parent):
     except Exception as e:
         print(f"Error: {e}")
         return False
-
-# Define expected headers for cleaning the Excel data
-expected_headers = {'FRAMES': ['Radical', 'Activation trame', 'Protocole_M', 'Identifiant_T', 'Taille_Max_T', 'Lmin_T', 'Mode_Transmission_T', 'Nature_Evenement_FR_T', 'Nature_Evenement_GB_T', 'Periode_T', 'UCE Emetteur', 'AEE10r3 Reseau_T']}
-
-# Function to clean the Excel data and keep only the necessary columns
-def cleanExcelData(excel_file):
-    df = pd.read_excel(excel_file, sheet_name='FRAMES', header=0)
-    headers = [col for col in df.columns if col in expected_headers['FRAMES']]
-    return df[headers]
 
 #Ordering by index table PDUR
 def ordered_by_id_PDUR(xdm_file,nodes):

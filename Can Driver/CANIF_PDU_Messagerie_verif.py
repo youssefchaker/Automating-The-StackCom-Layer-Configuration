@@ -1,8 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelData
-import tkinter as tk
-from tkinter import filedialog
-from lxml import etree
+from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelData,etree,tk,filedialog
 
 sheet_name="CANIF_PDU_Messagerie_verif"
 
@@ -29,7 +26,7 @@ def extract_CanifValues(xdm_file, frame_name,excel_file_path):
             'CanIfIdSymRef':' ',
             'CanIfIdSymRef/Frame Name':' ',
         }
-        write_to_Excel(result_data,file_path,'CANIF_PDU_Messagerie_verif')
+        write_to_Excel(result_data,file_path,sheet_name)
         CanIfCanCtrlIdRef, CanIfCanHandleTypeRef, CanIfIdSymRef= -1, -1, -1
         return CanIfCanCtrlIdRef, CanIfCanHandleTypeRef, CanIfIdSymRef
     else:
@@ -70,7 +67,7 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
                     'CanIfIdSymRef':' ',
                     'CanIfIdSymRef/Frame Name':' ',
                 }
-            write_to_Excel(result_data,file_path,'CANIF_PDU_Messagerie_verif')
+            write_to_Excel(result_data,file_path,sheet_name)
             return False
         else:
             frames_data = cleanExcelData(excel_file_path)
@@ -102,7 +99,7 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
                 'CanIfIdSymRef':[CanIfIdSymRef],
                 'CanIfIdSymRef/Frame Name Errors': ['Error (Frame Name not present in CanIfIdSymRef)' if CanIfIdSymReftst==False else "None"],
             }
-            write_to_Excel(result_data,file_path,'CANIF_PDU_Messagerie_verif')
+            write_to_Excel(result_data,file_path,sheet_name)
 
     except Exception as e:
                 print(f"Error occurred : {e}")

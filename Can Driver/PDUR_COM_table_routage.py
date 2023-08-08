@@ -1,8 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path
-import tkinter as tk
-from tkinter import filedialog
-from lxml import etree
+from statfuncs import clear_excel,write_to_Excel,file_path,etree,tk,filedialog
 
 sheet_name="PDUR_COM_table_routage"
 
@@ -80,7 +77,7 @@ def verify_frame(xdm_file_path, frame_name):
                 'PduRDestBswModuleRef':' ',
                 'PduRRoutingPathGroup':' '
                 }
-            write_to_Excel(result_data,file_path,'PDUR_COM_table_routage')
+            write_to_Excel(result_data,file_path,sheet_name)
             return False
         elif PduRDestPduRef==None:
             result_data = {
@@ -97,7 +94,7 @@ def verify_frame(xdm_file_path, frame_name):
                 'PduRDestBswModuleRef':' ',
                 'PduRRoutingPathGroup':' '
                 }
-            write_to_Excel(result_data,file_path,'PDUR_COM_table_routage')
+            write_to_Excel(result_data,file_path,sheet_name)
             return False
         else:
             PduRSrcPdutst=PduRSrcBswModuleReftst=PduRSrcPduReftst=PduRSrcPduUpTxConftst=PduRTransmissionConfirmationtst=PduRDestPduDataProvisiontst=PduRDestBswModuleReftst=PduRDestPduReftst=True
@@ -150,7 +147,7 @@ def verify_frame(xdm_file_path, frame_name):
                 'PduRDestBswModuleRef':["Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_CanIf' for Tx frame )" if PduRDestBswModuleReftst==False and frame_name=="Tx" else "Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_Com' for Rx frame )" if  PduRDestBswModuleReftst==False and frame_name=="Rx" else PduRDestBswModuleRef ],
                 'PduRRoutingPathGroup':[PduRRoutingPathGroup]
             }
-            write_to_Excel(result_data,file_path,'PDUR_COM_table_routage')
+            write_to_Excel(result_data,file_path,sheet_name)
 
     except Exception as e:
                 print(f"Error occurred : {e}")

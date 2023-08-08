@@ -1,8 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path
-import tkinter as tk
-from lxml import etree
-from tkinter import filedialog
+from statfuncs import clear_excel,write_to_Excel,file_path,etree,tk,filedialog
 
 sheet_name="CAN_verif_Geeds"
 

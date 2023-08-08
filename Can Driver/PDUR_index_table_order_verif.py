@@ -1,7 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,ordered_by_id_PDUR
-import tkinter as tk
-from tkinter import filedialog
+from statfuncs import clear_excel,write_to_Excel,file_path,ordered_by_id_PDUR,tk,filedialog
 
 sheet_name="PDUR_index_table_order_verif"
 nodes_src_Tx=['Com_PduRRoutingTable','PduRRoutingPath','PduRSrcPdu','PduRSourcePduHandleId']

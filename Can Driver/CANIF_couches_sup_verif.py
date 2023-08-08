@@ -1,8 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelData
-import tkinter as tk
-from tkinter import filedialog
-from lxml import etree
+from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelData,etree,tk,filedialog
 
 sheet_name="CANIF_couches_sup_verif"
 
@@ -40,7 +37,7 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
                     'CanIfTxPduUserTxConfirmationName':' ',
                     'CanIfTxPduUserTxConfirmationUL':' '
             }
-        write_to_Excel(result_data,file_path,'CANIF_couches_sup_verif')
+        write_to_Excel(result_data,file_path,sheet_name)
         CanIfPduCanId= CanIfPduCanIdType=CanIfPduRef=CanIfPduIdRef=CanIfPduReadNotifyStatus=CanIfRxPduReadData=CanIfRxPduDlc=CanIfRxPduUserRxIndicationName=CanIfRxPduUserRxIndicationUL=CanIfTxPduPnFilterPdu=CanIfTxPduType=CanIfTxPduUserTxConfirmationName=CanIfTxPduUserTxConfirmationUL= -1
         return CanIfPduCanId, CanIfPduCanIdType,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL
     else:
@@ -134,7 +131,7 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
                     'CanIfTxPduUserTxConfirmationName':' ',
                     'CanIfTxPduUserTxConfirmationUL':' '
             }
-            write_to_Excel(result_data,file_path,'CANIF_couches_sup_verif')
+            write_to_Excel(result_data,file_path,sheet_name)
             return False
 
         elif (CanIdValue is None):
@@ -160,7 +157,7 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
                     'CanIfTxPduUserTxConfirmationName':' ',
                     'CanIfTxPduUserTxConfirmationUL':' '
             }
-            write_to_Excel(result_data,file_path,'CANIF_couches_sup_verif')
+            write_to_Excel(result_data,file_path,sheet_name)
             return False
         else:
             CanIfPduCanIdtst=CanIfPduCanIdTypetst=CanIfPduReftst=CanIfPduIdReftst=CanIfPduReadNotifyStatustst=True
@@ -241,7 +238,7 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
                     'CanIfTxPduUserTxConfirmationName':["Error(CanIfTxPduUserTxConfirmationName is not of the value 'PduR_TxConfirmation')" if CanIfTxPduUserTxConfirmationNametst==False else "PDUR" if not CanIfTxPduUserTxConfirmationNametst==None else "---"],
                     'CanIfTxPduUserTxConfirmationUL':["Error(CanIfTxPduUserTxConfirmationUL is not of the value 'PDUR')" if CanIfTxPduUserTxConfirmationULtst==False else "PDUR" if not CanIfTxPduUserTxConfirmationULtst==None else "---"]
             }
-            write_to_Excel(result_data,file_path,'CANIF_couches_sup_verif')
+            write_to_Excel(result_data,file_path,sheet_name)
             return True
                 
     except Exception as e:
