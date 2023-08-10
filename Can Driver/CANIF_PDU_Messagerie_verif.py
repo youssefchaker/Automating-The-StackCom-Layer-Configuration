@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelData,etree,tk,filedialog
+from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelFrameData,etree,tk,filedialog,namespace
 
 sheet_name="CANIF_PDU_Messagerie_verif"
 
@@ -8,10 +8,9 @@ def extract_CanifValues(xdm_file, frame_name,excel_file_path):
     with open(xdm_file, 'r') as file:
         xdm_content = file.read()
     
-    frames_data = cleanExcelData(excel_file_path)
+    frames_data = cleanExcelFrameData(excel_file_path)
 
     root = etree.fromstring(xdm_content)
-    namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}
     selected_frame = frames_data[frames_data['Radical'] == frame_name]
     if selected_frame.empty:
         result_data = {
@@ -70,7 +69,7 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
             write_to_Excel(result_data,file_path,sheet_name)
             return False
         else:
-            frames_data = cleanExcelData(excel_file_path)
+            frames_data = cleanExcelFrameData(excel_file_path)
             selected_frame = frames_data[frames_data['Radical'] == frame_name]
             CanIfCanCtrlIdReftst=CanIfCanHandleTypeReftst=CanIfIdSymReftst=True
 

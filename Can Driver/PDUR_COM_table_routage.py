@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,etree,tk,filedialog
+from statfuncs import clear_excel,write_to_Excel,file_path,etree,tk,filedialog,namespace
 
 sheet_name="PDUR_COM_table_routage"
 
@@ -45,7 +45,6 @@ def Verif_RoutingGroupsValue(xdm_file, frame_name):
         xdm_content = file.read()
 
     root = etree.fromstring(xdm_content)
-    namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd','a':'http://www.tresos.de/_projects/DataModel2/08/attribute.xsd'}
     ctr_elements_Tx = root.xpath(".//d:lst[@name='PduRRoutingPathGroup']/d:ctr[@name='PduR_RoutingPathGrp_CanIf']/d:lst[@name='PduRDestPduRef']/d:ref[contains(@value, $name) and contains(@value, $name2)]", namespaces=namespace, name=frame_name,name2=frame_name+'_Dest')
     ctr_elements_Rx = root.xpath(".//d:lst[@name='PduRRoutingPathGroup']/d:ctr[@name='PduR_RoutingPathGrp_Com']/d:lst[@name='PduRDestPduRef']/d:ref[contains(@value, $name) and contains(@value, $name2)]", namespaces=namespace, name=frame_name,name2=frame_name+'_Dest')
     if ctr_elements_Tx and not ctr_elements_Rx:

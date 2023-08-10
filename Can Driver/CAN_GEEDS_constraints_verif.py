@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,etree,tk,filedialog
+from statfuncs import clear_excel,write_to_Excel,file_path,etree,tk,filedialog,namespace
 
 sheet_name="CAN_verif_Geeds"
 
@@ -10,17 +10,17 @@ def ordered_by_RX_TX(xdm_file):
             xdm_content = file.read()
 
         root = etree.fromstring(xdm_content)
-        ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
+        ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces=namespace)
 
-        receive_indices = [i for i, ctr in enumerate(ctr_elements) if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "RECEIVE"]
-        transmit_indices = [i for i, ctr in enumerate(ctr_elements) if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "TRANSMIT"]
+        receive_indices = [i for i, ctr in enumerate(ctr_elements) if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces=namespace) == "RECEIVE"]
+        transmit_indices = [i for i, ctr in enumerate(ctr_elements) if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces=namespace) == "TRANSMIT"]
 
         if receive_indices and transmit_indices:
             if receive_indices[-1] > transmit_indices[0]:
                 frame_name = ctr_elements[transmit_indices[0]].attrib['name']
                 return "TRANSMIT frame("+frame_name+") before RECEIVE frames"
 
-            if any(ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "RECEIVE" for ctr in ctr_elements[transmit_indices[-1] + 1:]):
+            if any(ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces=namespace) == "RECEIVE" for ctr in ctr_elements[transmit_indices[-1] + 1:]):
                 frame_name = ctr_elements[transmit_indices[0]].attrib['name']
                 return "TRANSMIT frame("+frame_name+"}) before RECEIVE frames"
 
@@ -38,12 +38,12 @@ def ordered_by_CAN_Ref(xdm_file):
             xdm_content = file.read()
 
         root = etree.fromstring(xdm_content)
-        ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
+        ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces=namespace)
 
         def check_order(frames):
             prev_index = None
             for ctr in frames:
-                ref_value = ctr.xpath("string(d:ref[@name='CanControllerRef']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
+                ref_value = ctr.xpath("string(d:ref[@name='CanControllerRef']/@value)", namespaces=namespace)
                 index = next((i for i, val in enumerate(expected_order) if val in ref_value), None)
                 if index is not None:
                     if prev_index is not None and index < prev_index:
@@ -55,8 +55,8 @@ def ordered_by_CAN_Ref(xdm_file):
                     return "The frame ("+frame_name+") has incorrect 'CanControllerRef' attribute order should be ("+expected_order[index]+")"
             return "True"
 
-        receive_frames = [ctr for ctr in ctr_elements if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "RECEIVE"]
-        transmit_frames = [ctr for ctr in ctr_elements if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}) == "TRANSMIT"]
+        receive_frames = [ctr for ctr in ctr_elements if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces=namespace) == "RECEIVE"]
+        transmit_frames = [ctr for ctr in ctr_elements if ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces=namespace) == "TRANSMIT"]
 
         receive_order_check = check_order(receive_frames)
         transmit_order_check = check_order(transmit_frames)
@@ -82,9 +82,9 @@ def ordered_by_id(xdm_file):
             xdm_content = file.read()
 
         root = etree.fromstring(xdm_content)
-        ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})
+        ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr", namespaces=namespace)
 
-        frames_data = [(ctr.attrib['name'], ctr.xpath("string(d:var[@name='CanObjectId']/@value)", namespaces={'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'})) for ctr in ctr_elements]
+        frames_data = [(ctr.attrib['name'], ctr.xpath("string(d:var[@name='CanObjectId']/@value)", namespaces=namespace)) for ctr in ctr_elements]
         frames_data = [(name, obj_id) for name, obj_id in frames_data if obj_id.strip()]
 
         first_can_object_id = int(frames_data[0][1])

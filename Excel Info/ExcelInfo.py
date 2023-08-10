@@ -5,7 +5,7 @@ expected_headers = {
     'SIGNALS': ['Radical_T', 'Position_octet_S', 'Position_bit_S', 'Taille_Max_S', 'Mnemonique_S', 'Nom_FR_S', 'Nom_GB_S', 'Type_S', 'Nom_FR_V', 'Nom_GB_V', 'Unite_FR_U', 'Unite_GB_U', 'Valeur_Min_S', 'Valeur_Max_S', 'Resolution_S', 'Offset_S', 'Valeur_Invalide_S', 'Valeur_Indisponible_S', 'Valeur_Interdite_S', 'Emetteur', 'Récepteur', 'Gateway']
 }
 
-def cleanExcelData(excel_file):
+def cleanExcelFrameData(excel_file):
     frames_data = {}
     signals_data = {}
     
@@ -31,7 +31,7 @@ def cleanExcelData(excel_file):
 excel_file = r'C:\Users\Youssefch\Desktop\studies\capgemini\py\Excel Info\Frames&Signals.xlsx'
 
 # Clean the data and retrieve frames and signals data
-frames_data, signals_data = cleanExcelData(excel_file)
+frames_data, signals_data = cleanExcelFrameData(excel_file)
 
 # Print frames data
 print("Frames Data:")

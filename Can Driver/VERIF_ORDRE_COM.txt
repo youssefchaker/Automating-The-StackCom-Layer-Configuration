@@ -1,0 +1,242 @@
+# -*- coding: utf-8 -*-
+###  le fichier : VERIF_ORDRE_COM.py
+
+import os
+import xlrd
+import argparse
+import xml.etree.ElementTree as ET
+
+#######-------------------- signals ------------------------------------------------------------#
+def POS_CALC_FROM_DBC_To_CDC (_position_signal_dbc_, _taille_signal_dbc_):
+    #calculer la position d'un signal (début signal dans le layout du dbc)
+    
+    DIV_ENT = int(_position_signal_dbc_) // 8    # // : c'est la division entiere
+    REST1 = (DIV_ENT + 1) * 8 - int(_position_signal_dbc_)
+    REST2 = int(_taille_signal_dbc_) - REST1
+    residu = REST2 % 8   #  % : c'est le reste de la division entiere
+    if residu == 0 :
+       k = (REST2 // 8) - 1
+    else:
+       k = REST2 // 8
+    
+    if REST2 > 0 :
+       _pos_calc_cdc_ = (DIV_ENT - 1 - k) *8 + REST2 - 8 * k - 1
+    else:
+       _pos_calc_cdc_ = int(_position_signal_dbc_) + int(_taille_signal_dbc_) - 1  
+    _Signal_Byte_Position_CDC_ = ( _pos_calc_cdc_ // 8 ) + 1
+    _Signal_Bit_Position_CDC_ = _pos_calc_cdc_ % 8
+
+    return _Signal_Byte_Position_CDC_, _Signal_Bit_Position_CDC_
+	
+def type_signal (_longueur_, _Signal_phy_min_, _Signal_phy_max_, _Signal_Phy_Resolution_, _Signal_Offset_):
+    if int(float(_longueur_))  == 1:
+       _type_ = "BOOLEAN"
+    elif _Signal_phy_min_ != "Non applicable" or _Signal_phy_max_ != "Non applicable" :
+ 
+        SUP = (float(_Signal_phy_max_) - float(_Signal_Offset_)) // float (_Signal_Phy_Resolution_)
+        INF = (float(_Signal_phy_min_) - float(_Signal_Offset_)) // float (_Signal_Phy_Resolution_)
+        if (SUP >=0 and  SUP <= 255)  and (INF >=0 and  INF <= 255):
+           _type_ = "UINT8"
+        elif SUP <= 127 and  INF >= -128:
+           _type_ = "SINT8"	
+        elif (SUP >=0 and  SUP <= 65535)  and (INF >=0 and  INF <= 65535):	
+           _type_ = "UINT16"	   
+        elif SUP <= 32767 and  INF >= (-32768):
+           _type_ = "SINT16"
+        elif (SUP >=0 and  SUP <= 4294967295)  and (INF >=0 and  INF <= 4294967295):			  
+           _type_ = "UINT32"		  
+        elif SUP <= 2147483647 and  INF >= (-2147483648):
+           _type_ = "SINT32"	
+    elif int(float(_longueur_))  <= 8:
+       _type_ = "UINT8"
+    elif int(float(_longueur_))  <= int(16):
+       _type_ = "UINT16"	
+    elif int(float(_longueur_))  <= int(32):
+       _type_ = "UINT32"
+    elif int(float(_longueur_))  <= int(64):
+       _type_ = "UINT64"	   
+    return _type_
+    
+
+def VERIF_POS_TYPE_SIGNALS(_xdm_com_ , _sheet_signals_ ,_index_Radical_Frame_SIG_,_index_Signal_Name_,_index_Signal_Size_,_index_Signal_Bit_Position_, _index_Signal_Byte_Position_, _index_Signal_size_cdc_, _index_Signal_phy_min_cdc_, _index_Signal_phy_max_cdc_, _Signal_Phy_Resolution_cdc_, _index_Signal_Offset_cdc_):
+    mytree_ref = ET.parse(_xdm_com_)
+    myroot_ref = mytree_ref.getroot()
+    value1  =  myroot_ref[0][0][0][0][0][0][3][0][1].attrib['name']   # pour avoir la balise qui contient  : <d_lst name="ComSignal" type="MAP">
+    Nombre_Signaux = len(list(myroot_ref[0][0][0][0][0][0][3][0][1]))
+
+    rapport_sig = open("position_signal.log", "w")
+
+    index = 0
+    while index  < Nombre_Signaux :
+          signal_name_xdm =  myroot_ref[0][0][0][0][0][0][3][0][1][index].attrib['name']
+          index_excel_sig = 3
+          while index_excel_sig < _sheet_signals_.nrows :
+                signal_name_cdc =  str(_sheet_signals_.cell(index_excel_sig, _index_Signal_Name_).value) + "_" +  str(_sheet_signals_.cell(index_excel_sig, _index_Radical_Frame_SIG_).value)
+                if  signal_name_cdc  == signal_name_xdm :
+                    ComBitPosition_xdm =  myroot_ref[0][0][0][0][0][0][3][0][1][index][0].attrib['value']				
+                    ComBitSize_xdm =  myroot_ref[0][0][0][0][0][0][3][0][1][index][1].attrib['value']
+                    ComHandleId_xdm =  myroot_ref[0][0][0][0][0][0][3][0][1][index][2].attrib['value']
+                    ComSignalType_xdm =  myroot_ref[0][0][0][0][0][0][3][0][1][index][6].attrib['value']
+	      
+                    size_cdc = str(_sheet_signals_.cell(index_excel_sig, _index_Signal_size_cdc_).value)
+                    Signal_phy_min = str(_sheet_signals_.cell(index_excel_sig, _index_Signal_phy_min_cdc_).value)
+                    Signal_phy_max = str(_sheet_signals_.cell(index_excel_sig, _index_Signal_phy_max_cdc_).value)
+                    Signal_Phy_Resolution = str(_sheet_signals_.cell(index_excel_sig, _Signal_Phy_Resolution_cdc_).value)
+                    Signal_Offset = str(_sheet_signals_.cell(index_excel_sig, _index_Signal_Offset_cdc_).value)
+                
+                    Signal_Byte_Position_CDC, Signal_Bit_Position_CDC = POS_CALC_FROM_DBC_To_CDC ( ComBitPosition_xdm, ComBitSize_xdm )
+                    if int(Signal_Byte_Position_CDC) !=  int(float(_sheet_signals_.cell(index_excel_sig, _index_Signal_Byte_Position_).value)) and int(Signal_Bit_Position_CDC) !=  int(float(_sheet_signals_.cell(index_excel_sig, _index_Signal_Bit_Position_).value)) :
+                       rapport_sig.write("la position, %s index tableau : %s ,byte/bit:	%s/%s \n" % (signal_name_xdm,ComHandleId_xdm, Signal_Byte_Position_CDC, Signal_Bit_Position_CDC ))  # le rapport
+	      
+                    if int (ComBitSize_xdm) !=  int(float(_sheet_signals_.cell(index_excel_sig, _index_Signal_Size_).value)) :
+                       rapport_sig.write("le longueur, %s index tableau : %s \n" % (signal_name_xdm,ComHandleId_xdm ))  # le rapport
+                    Signal_Type_cdc = type_signal(size_cdc, Signal_phy_min, Signal_phy_max, Signal_Phy_Resolution, Signal_Offset)  
+                    if str (ComSignalType_xdm) !=  Signal_Type_cdc :
+                       rapport_sig.write("le type, %s index tableau : %s, expected %s \n" % (signal_name_xdm, ComHandleId_xdm, Signal_Type_cdc ))  # le rapport
+	      
+                    break
+                index_excel_sig = index_excel_sig + 1  
+          index = index + 1 
+	        
+    return 
+  
+
+
+#######-------------------- frames ------------------------------##########
+def second_element(M):
+    return M[1]
+    
+def trier_trames_cdc (_sheet_frames_ , _index_radical_frame_ , _index_Frame_Id_, _index_Frame_Trans_Ecu_):
+  
+  _list_frames_id_tx = []
+  _list_frames_id_rx = []
+  _list_sorted_tx = []
+  _list_sorted_rx = []
+  _list_sorted_ = []
+  rapport_cdc = open("temp_ordre_cdc.log", "w")
+  index_excel = 3
+  while index_excel < _sheet_frames_.nrows :
+        if _sheet_frames_.cell(index_excel, _index_Frame_Trans_Ecu_).value .startswith('E_VCU',)== True :
+           valeur_en_hex =  "0x" +  str(_sheet_frames_.cell(index_excel, _index_Frame_Id_).value)
+           converted_id_dec_tx =   int ( valeur_en_hex , 16)  # here  convertir hex en dec 
+           couple =  [  _sheet_frames_.cell(index_excel, _index_radical_frame_).value , converted_id_dec_tx ]      
+           _list_frames_id_tx.append(couple)
+        else :
+           valeur_en_hex =  "0x" +  str(_sheet_frames_.cell(index_excel, _index_Frame_Id_).value)
+           converted_id_dec_rx =   int ( valeur_en_hex , 16)  # here  convertir hex en dec 
+           couple =  [  _sheet_frames_.cell(index_excel, _index_radical_frame_).value , converted_id_dec_rx ]      
+           _list_frames_id_rx.append(couple)
+        index_excel = index_excel +1
+         
+  _list_sorted_tx = sorted(_list_frames_id_tx, key = second_element)
+  _list_sorted_rx = sorted(_list_frames_id_rx, key = second_element)
+  _list_sorted_.extend(_list_sorted_tx)
+  _list_sorted_.extend(_list_sorted_rx)
+  index_ = 0
+  while index_ < (index_excel - 3)  :
+        rapport_cdc.write("%s  \n" % (_list_sorted_[index_]))  # le rapport
+        index_ = index_ +1
+
+  return _list_sorted_
+  
+def extract_ordre_com(_xdm_com_):
+
+    _list_frame_COM_ = []
+    mytree_ref = ET.parse(_xdm_com_)
+    myroot_ref = mytree_ref.getroot()
+    value  =  myroot_ref[0][0][0][0][0][0][3][0][3].attrib['name']   # pour avoir la balise qui contient  : <d_lst name="ComIPdu" type="MAP">
+    taille = len(list(myroot_ref[0][0][0][0][0][0][3][0][3]))
+    index = 0
+    while index  < taille :
+          frame_name =  myroot_ref[0][0][0][0][0][0][3][0][3][index].attrib['name']
+          index = index + 1 
+          _list_frame_COM_.append(frame_name)	        
+    return _list_frame_COM_
+    
+
+
+def verif_ordre_com(_CDC_PATCHED_, _COM_XDM_):
+    workbook_DocM = xlrd.open_workbook(_CDC_PATCHED_)  # load le fichier dans workbook object :wb
+    sheet_frames = workbook_DocM.sheet_by_name('FRAMES')
+    sheet_signals = workbook_DocM.sheet_by_name('SIGNALS')
+    
+    index_radical_frame = 0
+    index_Frame_Id = 0
+    index_Frame_Trans_Ecu = 0
+    index_Radical_Frame_SIG = 0
+    index_Signal_Name = 0
+    index_Signal_Size = 0
+    index_Signal_Bit_Position = 0
+    index_Signal_Byte_Position = 0
+	
+    index_Signal_Phy_Min = 0
+    index_Signal_Phy_Max = 0
+    index_Signal_Phy_Resolution = 0
+    index_Signal_Offset = 0
+
+    while sheet_frames.cell(1, index_radical_frame).value  != "Frame_Radical":
+          index_radical_frame = index_radical_frame + 1
+    while sheet_frames.cell(1, index_Frame_Id).value  != "Frame_Id":
+          index_Frame_Id = index_Frame_Id + 1
+    while sheet_frames.cell(1, index_Frame_Trans_Ecu).value  != "Frame_TransmitterECU":
+          index_Frame_Trans_Ecu = index_Frame_Trans_Ecu + 1  
+		  
+    while sheet_signals.cell(1, index_Radical_Frame_SIG).value  != "Frame_Radical":
+          index_Radical_Frame_SIG = index_Radical_Frame_SIG + 1 
+    while sheet_signals.cell(1, index_Signal_Name).value  != "Signal_Mnemonic":
+          index_Signal_Name = index_Signal_Name + 1 		  
+    while sheet_signals.cell(1, index_Signal_Size).value  != "Signal_lgth":
+          index_Signal_Size = index_Signal_Size + 1
+    while sheet_signals.cell(1, index_Signal_Bit_Position).value  != "Signal_Bit_Position":
+          index_Signal_Bit_Position = index_Signal_Bit_Position + 1		  
+    while sheet_signals.cell(1, index_Signal_Byte_Position).value  != "Signal_Byte_Position":
+          index_Signal_Byte_Position = index_Signal_Byte_Position + 1
+
+
+    while sheet_signals.cell(1, index_Signal_Phy_Min).value  != "Signal_Phy_Min_Value":
+          index_Signal_Phy_Min = index_Signal_Phy_Min + 1
+    while sheet_signals.cell(1, index_Signal_Phy_Max).value  != "Signal_Phy_Max_Value":
+          index_Signal_Phy_Max = index_Signal_Phy_Max + 1	
+    while sheet_signals.cell(1, index_Signal_Phy_Resolution).value  != "Signal_Phy_Resolution":
+          index_Signal_Phy_Resolution = index_Signal_Phy_Resolution + 1	
+    while sheet_signals.cell(1, index_Signal_Offset).value  != "Signal_Conversion_Offset":
+          index_Signal_Offset = index_Signal_Offset + 1			  
+		  
+    list_frames_cdc = trier_trames_cdc (sheet_frames , index_radical_frame , index_Frame_Id,  index_Frame_Trans_Ecu)
+    list_frame_COM = extract_ordre_com(_COM_XDM_)
+    
+    ###### compare_ordre_com_cdc ######### 
+    rapport = open("miss_orde.log", "w")
+    index_cdc = 0    
+    while index_cdc < len(list_frames_cdc):
+          if list_frames_cdc[index_cdc][0] != list_frame_COM[index_cdc] : 
+             rapport.write("%s : %s should be  %s\n" % (list_frame_COM[index_cdc],index_cdc, list_frames_cdc[index_cdc][0] ))  # le rapport
+          index_cdc = index_cdc + 1
+  
+    VERIF_POS_TYPE_SIGNALS(_COM_XDM_ , sheet_signals ,index_Radical_Frame_SIG,index_Signal_Name,index_Signal_Size, index_Signal_Bit_Position, index_Signal_Byte_Position, index_Signal_Size, index_Signal_Phy_Min, index_Signal_Phy_Max, index_Signal_Phy_Resolution, index_Signal_Offset)
+if __name__ == "__main__":
+
+   # construct the argument parse and parse the arguments
+   ap = argparse.ArgumentParser()
+   ap.add_argument("-p", "--cdc_path", required=True, help="path to the cdc patched")
+   ap.add_argument("-c", "--com_xdm", required=True, help="path to the com xdm")
+   args = vars(ap.parse_args())
+   # Open the txt files
+   CDC_PATCHED = args["cdc_path"]
+   COM_XDM = args["com_xdm"]
+   print("****************************************************************************************" )
+   print("*****************                                                      *****************" )
+   print("*********************************CHECK COM lAYER ***************************************" )
+   print("*****************                                                      *****************" )
+   print("****************************************************************************************" )
+   print("[1] COM LAYER" )
+   print("[2] other" )
+   choix = input("[1,2]?: ")
+   if choix == "1":
+      verif_ordre_com(CDC_PATCHED, COM_XDM)
+   elif choix == "2" :
+       print("en maintenance" )
+   else:
+    choix = input("Please enter the right choice [1,2]?: ")
+   
+   print("done !")

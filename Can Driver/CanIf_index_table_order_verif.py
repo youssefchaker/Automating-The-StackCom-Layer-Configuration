@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,ordered_by_id_CanIf,tk,filedialog
+from statfuncs import clear_excel,write_to_Excel,file_path,ordered_by_id_CanIf,tk,filedialog,namespace
 
 sheet_name="CANIF_index_table_order_verif"
 

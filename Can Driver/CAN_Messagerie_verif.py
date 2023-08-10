@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelData,etree,tk,filedialog
+from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelFrameData,etree,tk,filedialog,namespace
 sheet_name="CAN_Messagerie_verif"
 
 # Function to extract necessary attributes for the target frame from the .xdm file
@@ -8,7 +8,6 @@ def extract_CanValues(xdm_file, frame_name):
         xdm_content = file.read()
 
     root = etree.fromstring(xdm_content)
-    namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}
 
     ctr_elements = root.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr[contains(@name, $name)]", namespaces=namespace, name=frame_name)
     if ctr_elements:
@@ -51,7 +50,7 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
         else:
             
             
-            frames_data = cleanExcelData(excel_file_path)
+            frames_data = cleanExcelFrameData(excel_file_path)
             selected_frame = frames_data[frames_data['Radical'] == frame_name]
 
             if selected_frame.empty:

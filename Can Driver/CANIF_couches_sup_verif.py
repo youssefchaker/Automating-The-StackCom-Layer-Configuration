@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelData,etree,tk,filedialog
+from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelFrameData,etree,tk,filedialog,namespace
 
 sheet_name="CANIF_couches_sup_verif"
 
@@ -8,7 +8,7 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
     with open(canif_file_path, 'r') as file:
         canif_content = file.read()
     
-    frames_data = cleanExcelData(excel_file_path)
+    frames_data = cleanExcelFrameData(excel_file_path)
 
     root_canif = etree.fromstring(canif_content)
 
@@ -92,7 +92,6 @@ def extract_CanValues(can_file_path, frame_name):
         can_content = file.read()
 
     root_can = etree.fromstring(can_content)
-    namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd'}
 
     ctr_elements = root_can.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr[contains(@name, $name)]", namespaces=namespace, name=frame_name)
     if ctr_elements:
@@ -163,7 +162,7 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
             CanIfPduCanIdtst=CanIfPduCanIdTypetst=CanIfPduReftst=CanIfPduIdReftst=CanIfPduReadNotifyStatustst=True
             CanIfRxPduReadDatatst=CanIfRxPduDlctst=CanIfRxPduUserRxIndicationNametst=CanIfRxPduUserRxIndicationULtst=CanIfTxPduPnFilterPdutst=CanIfTxPduTypetst=CanIfTxPduUserTxConfirmationNametst=CanIfTxPduUserTxConfirmationULtst=None
 
-            frames_data = cleanExcelData(excel_file_path)
+            frames_data = cleanExcelFrameData(excel_file_path)
             selected_frame = frames_data[frames_data['Radical'] == frame_name]
 
             if(CanIfPduCanId!=CanIdValue):

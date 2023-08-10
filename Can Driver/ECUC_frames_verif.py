@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,etree,cleanExcelData,tk,filedialog
+from statfuncs import clear_excel,write_to_Excel,file_path,etree,cleanExcelFrameData,tk,filedialog,namespace
 
 sheet_name="ECUC_frames_verif"
 
@@ -9,7 +9,6 @@ def extract_ECUC_values(xdm_file, frame_name):
         xdm_content = file.read()
 
     root = etree.fromstring(xdm_content)
-    namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd','a':'http://www.tresos.de/_projects/DataModel2/08/attribute.xsd'}
     elements = root.xpath(".//d:lst[@name='Pdu']/d:ctr[@name=$name]/d:var[@name='PduLength']", namespaces=namespace, name=frame_name)
     if elements:
         PduLength=elements[0].get("value")
@@ -33,7 +32,7 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
             return False
         else:
             
-            frames_data = cleanExcelData(excel_file_path)
+            frames_data = cleanExcelFrameData(excel_file_path)
             selected_frame = frames_data[frames_data['Radical'] == frame_name]
 
             if selected_frame.empty:
