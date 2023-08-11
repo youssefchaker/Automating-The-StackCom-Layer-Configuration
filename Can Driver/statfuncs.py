@@ -4,6 +4,7 @@ from openpyxl import load_workbook
 from lxml import etree
 import tkinter as tk
 from tkinter import filedialog
+import math
 
 #the excel output file file path
 file_path = os.path.join(os.getcwd(), 'Output.xlsx')

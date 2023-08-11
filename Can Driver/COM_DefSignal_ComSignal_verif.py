@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelSignalData,etree,tk,filedialog,namespace,Signal_Type,Signal_Position_inFrame,Signal_Type,cleanExcelFrameData
+from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelSignalData,etree,tk,filedialog,namespace,Signal_Type,Signal_Position_inFrame,Signal_Type,cleanExcelFrameData,math
 
 sheet_name="COM_DefSignal_ComSignal_verif"
 
@@ -16,15 +16,22 @@ def extract_ComValues(xdm_file, signal_name):
         ComSignalEndianness = elements[0].xpath("string(d:var[@name='ComSignalEndianness']/@value)", namespaces=namespace)
         ComSignalInitValue = elements[0].xpath("string(d:var[@name='ComSignalInitValue']/@value)", namespaces=namespace)
         ComSignalType = elements[0].xpath("d:var[@name='ComSignalType']/@value", namespaces=namespace)[0]
-        ComTransferProperty = elements[0].xpath("d:var[@name='ComTransferProperty']/@value", namespaces=namespace)[0]
+        ComTransferProperty = elements[0].xpath("d:var[@name='ComTransferProperty']/@value", namespaces=namespace)
+        ComTransferProperty = list(filter(None, ComTransferProperty))
+        if(ComTransferProperty):
+            ComTransferProperty=ComTransferProperty[0]
+        
         ComNotification=elements[0].xpath("d:var[@name='ComNotification']/@value", namespaces=namespace)
-        if(ComNotification!=[]):
+        ComNotification = list(filter(None, ComNotification))
+        if(ComNotification):
             ComNotification=ComNotification[0]
         ComTimeoutNotification=elements[0].xpath("d:var[@name='ComTimeoutNotification']/@value", namespaces=namespace)
-        if(ComTimeoutNotification!=[]):
+        ComTimeoutNotification = list(filter(None, ComTimeoutNotification))
+        if(ComTimeoutNotification):
             ComTimeoutNotification=ComTimeoutNotification[0]
         ComTimeout=elements[0].xpath("d:var[@name='ComTimeout']/@value", namespaces=namespace)
-        if(ComTimeout!=[]):
+        ComTimeout = list(filter(None, ComTimeout))
+        if(ComTimeout):
             ComTimeout=float(ComTimeout[0])
     else:
         ComBitPosition= ComBitSize= ComSignalEndianness= ComSignalInitValue= ComSignalType= ComTransferProperty= ComNotification= ComTimeoutNotification=ComTimeout= None
@@ -46,9 +53,6 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
             signals_data = cleanExcelSignalData(excel_file_path)
             frames_data = cleanExcelFrameData(excel_file_path)
             selected_signal = signals_data[signals_data['Mnemonique_S']+"_"+signals_data['Radical_T'] == signal_name]
-            selected_frame = frames_data[frames_data['Radical'] == selected_signal['Radical_T'].values[0]]
-            identifiant_t_hex = selected_frame["Identifiant_T"].values[0]
-            frame_id=int(identifiant_t_hex,16)
             if selected_signal.empty:
                 result_data = {
                     'Signal Name': [signal_name],
@@ -56,6 +60,9 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 }
                 write_to_Excel(result_data,file_path,sheet_name)
             else:
+                selected_frame = frames_data[frames_data['Radical'] == selected_signal['Radical_T'].values[0]]
+                identifiant_t_hex = selected_frame["Identifiant_T"].values[0]
+                frame_id=int(identifiant_t_hex,16)
                 ComBitPositiontst= ComBitSizetst= ComSignalEndiannesstst= ComSignalInitValuetst= ComSignalTypetst= ComTransferPropertytst= ComNotificationtst= ComTimeoutNotificationtst=ComTimeouttst= True
                 #excel signal info
                 pos_oct_excel=selected_signal["Position_octet_S"].values[0]
@@ -78,22 +85,29 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 
                 if(ComSignalEndianness!="BIG_ENDIAN"):
                     ComSignalEndiannesstst=False
+
                 signal_Rx_test=selected_signal["Emetteur"].str.endswith("E_VCU").any()
-                signal_init_value_excel=-1
+                signal_init_value_excel=hex(0)
                 if signal_Rx_test:
-                    signal_init_value_excel=int(selected_signal["PROD_INIT"].values[0],16)
-                    if(signal_init_value_excel!=ComSignalInitValue):
+                    signal_init_value_excel=selected_signal["PROD_INIT"].values[0]
+                    if(signal_init_value_excel=="Non applicable" or math.isnan(int(signal_init_value_excel,16))):
+                        signal_init_value_excel=hex(0)
+                    if(int(signal_init_value_excel,16)!=int(ComSignalInitValue)):
                         ComSignalInitValuetst=False
+                    
                 else:
-                    signal_init_value_excel=int(selected_signal["CONS_INIT"].values[0],16)
-                    if(signal_init_value_excel!=ComSignalInitValue):
+                    signal_init_value_excel=selected_signal["CONS_INIT"].values[0]
+                    if(signal_init_value_excel=="Non applicable" or math.isnan(int(signal_init_value_excel,16))):
+                        signal_init_value_excel=hex(0)
+                    if(int(signal_init_value_excel,16)!=int(ComSignalInitValue)):
                         ComSignalInitValuetst=False
 
-                if(ComSignalType!=signal_type_excel):
-                    ComSignalTypetst=False
                 
                 signal_modetrans=selected_frame["Mode_Transmission_T"].values[0]
-                if(signal_modetrans=="Periodique" and ComTransferProperty=="PENDING"):
+                if(not ComTransferProperty):
+                    ComTransferProperty="Null"
+                    ComTransferPropertytst=False
+                elif(signal_modetrans=="Periodique" and ComTransferProperty=="PENDING"):
                     pass
                 elif (signal_modetrans=="Evenmentielle" and ComTransferProperty=="TRIGGERED"):
                     pass
@@ -101,26 +115,32 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                     pass
                 else:
                     ComTransferPropertytst=False
-                if(signal_Rx_test and ComNotification!="FHCAN_EveRxF"+str(frame_id)+"_AckClbk"):
+                
+                if(not ComNotification):
+                    ComNotification="Null"
+                elif(signal_Rx_test and ComNotification!="FHCAN_EveRxF"+str(frame_id)+"_AckClbk"):
                     ComNotificationtst=False
-                    
-                if(signal_Rx_test and ComTimeoutNotification!="FHCAN_EveRxF"+str(frame_id)+"_TOutClbk"):
+
+                if(not ComTimeoutNotification):
+                    ComTimeoutNotification="Null"  
+                elif(signal_Rx_test and ComTimeoutNotification!="FHCAN_EveRxF"+str(frame_id)+"_TOutClbk"):
                     ComTimeoutNotificationtst=False
 
-                period=-1
-                if(signal_modetrans=="Periodique" and signal_Rx_test):
-                    period=int(selected_frame["Periode_T"].values[0])
-                    if(period==10 and ComTimeout==3*period):
+                signal_period_excel="Null"
+                if(not ComTimeout):
+                    ComTimeout="Null"
+                elif(signal_modetrans=="Periodique" and signal_Rx_test):
+                    signal_period_excel=selected_frame["Periode_T"].values[0]
+                    if(signal_period_excel==10 and ComTimeout==3*signal_period_excel):
                         pass
-                    if(period>=20 and period<=30 and ComTimeout==2*period):
+                    if(signal_period_excel>=20 and signal_period_excel<=30 and ComTimeout==2*signal_period_excel):
                         pass
-                    if(period>=40 and period<=90 and ComTimeout==period+10):
+                    if(signal_period_excel>=40 and signal_period_excel<=90 and ComTimeout==signal_period_excel+10):
                         pass
-                    if(period>=100 and ComTimeout==period+(period*10/100)):
+                    if(signal_period_excel>=100 and ComTimeout==signal_period_excel+(signal_period_excel*10/100)):
                         pass
                     else:
                         ComTimeouttst=False
-                
                 result_data = {
                     'Signal Name': [signal_name],
                     'Passed?':[" " if ComBitPositiontst == False or ComBitSizetst == False or ComSignalEndiannesstst == False or ComSignalInitValuetst == False or ComSignalTypetst == False or ComTransferPropertytst == False or ComNotificationtst == False or ComTimeoutNotificationtst == False or ComTimeouttst == False else "X"],
@@ -135,7 +155,7 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                     'ComBitSize/MessagerieBitSize Errors':["Error(Signal Size Mismatch)" if ComBitSizetst==False else 'None'],
                     'ComSignalEndianness':["Error(ComSignalEndianness is not of the value 'BIG_ENDIAN')" if ComSignalEndiannesstst==False else ComSignalEndianness],
                     'ComSignalInitValue':[ComSignalInitValue],
-                    'MessagerieSignalInitValue':[signal_init_value_excel],
+                    'MessagerieSignalInitValue':[int(signal_init_value_excel,16)],
                     'ComSignalInitValue/MessagerieSignalInitValue Errors':["Error(Signal Init Value Mismatch)" if ComSignalInitValuetst==False else "None"],
                     'ComSignalType':[ComSignalType],
                     'MessagerieSignalType':[signal_type_excel],
@@ -143,15 +163,11 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                     'ComTransferProperty':[ComTransferProperty],
                     'MessagerieTransferProperty':[signal_modetrans],
                     'ComTransferProperty/MessagerieTransferProperty':["Error(Transfer Property Mismatch)" if ComTransferPropertytst==False else "None"],
-                    'ComNotifcation':["---" if signal_Rx_test==False else "Error(ComNotifcation is not in the correct form)" if signal_Rx_test and ComNotificationtst==False else ComNotifcation],
+                    'ComNotification':["---" if signal_Rx_test==False else "Error(ComNotification is not in the correct form)" if signal_Rx_test and ComNotificationtst==False else ComNotification],
                     'ComTimeoutNotification':["---" if signal_Rx_test==False else "Error(ComTimeoutNotification is not in the correct form)" if signal_Rx_test and ComTimeoutNotificationtst==False else ComTimeoutNotification],
                     'ComTimeout':["---" if signal_Rx_test==False else ComTimeout],
-                    'MessagerieTimeout':["---" if signal_Rx_test==False else period],
+                    'MessagerieTimeout':["---" if signal_Rx_test==False else signal_period_excel],
                     'ComTimeout/MessagerieTimeout':["---" if signal_Rx_test==False else "Error(ComTimeout/MessagerieTimeout values are not Correct)" if signal_Rx_test and ComTimeouttst==False else"None"],
-
-
-
-
                 }
                 write_to_Excel(result_data,file_path,sheet_name)
 
