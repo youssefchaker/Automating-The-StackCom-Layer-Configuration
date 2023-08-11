@@ -46,7 +46,31 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
             result_data = {
                 'Signal Name': [signal_name],
                 'Passed?':["Signal Not Found in COM"],
-                }
+                'Frame Name': ' ',
+                'ComBitPosition': ' ',
+                'MessagerieBitPosition': ' ',
+                'ComBytePosition': ' ',
+                'MessagerieBytePosition': ' ',
+                'ComBitPosition/ComBytePosition Errors': ' ',
+                'ComBitSize': ' ',
+                'MessagerieBitSize': ' ',
+                'ComBitSize/MessagerieBitSize Errors': ' ',
+                'ComSignalEndianness': ' ',
+                'ComSignalInitValue': ' ',
+                'MessagerieSignalInitValue': ' ',
+                'ComSignalInitValue/MessagerieSignalInitValue Errors': ' ',
+                'ComSignalType': ' ',
+                'MessagerieSignalType': ' ',
+                'ComSignalType/MessagerieSignalType': ' ',
+                'ComTransferProperty': ' ',
+                'MessagerieTransferProperty': ' ',
+                'ComTransferProperty/MessagerieTransferProperty': ' ',
+                'ComNotification': ' ',
+                'ComTimeoutNotification': ' ',
+                'ComTimeout': ' ',
+                'MessagerieTimeout': ' ',
+                'ComTimeout/MessagerieTimeout': ' '
+            }
             write_to_Excel(result_data,file_path,sheet_name)
             return False
         else:
@@ -57,6 +81,30 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 result_data = {
                     'Signal Name': [signal_name],
                     'Passed?':["Signal Not Found in Messagerie"],
+                    'Frame Name': ' ',
+                    'ComBitPosition': ' ',
+                    'MessagerieBitPosition': ' ',
+                    'ComBytePosition': ' ',
+                    'MessagerieBytePosition': ' ',
+                    'ComBitPosition/ComBytePosition Errors': ' ',
+                    'ComBitSize': ' ',
+                    'MessagerieBitSize': ' ',
+                    'ComBitSize/MessagerieBitSize Errors': ' ',
+                    'ComSignalEndianness': ' ',
+                    'ComSignalInitValue': ' ',
+                    'MessagerieSignalInitValue': ' ',
+                    'ComSignalInitValue/MessagerieSignalInitValue Errors': ' ',
+                    'ComSignalType': ' ',
+                    'MessagerieSignalType': ' ',
+                    'ComSignalType/MessagerieSignalType': ' ',
+                    'ComTransferProperty': ' ',
+                    'MessagerieTransferProperty': ' ',
+                    'ComTransferProperty/MessagerieTransferProperty': ' ',
+                    'ComNotification': ' ',
+                    'ComTimeoutNotification': ' ',
+                    'ComTimeout': ' ',
+                    'MessagerieTimeout': ' ',
+                    'ComTimeout/MessagerieTimeout': ' '
                 }
                 write_to_Excel(result_data,file_path,sheet_name)
             else:
