@@ -18,7 +18,10 @@ def extract_ComValues(xdm_file, frame_name):
         ComIPduSignalRef=elements[0].xpath("d:lst[@name='ComIPduSignalRef']/d:ref", namespaces=namespace)
         signals = [ref.attrib['value'] for ref in ComIPduSignalRef]
         signals = [signal.replace('ASPath:/Com/Com/ComConfig/', '') for signal in signals]
-        ComIPduCallout = elements[0].xpath("d:var[@name='ComIPduCallout']/@value", namespaces=namespace)[0]
+        ComIPduCallout = elements[0].xpath("d:var[@name='ComIPduCallout']/@value", namespaces=namespace)
+        ComIPduCallout = list(filter(None, ComIPduCallout))
+        if(ComIPduCallout):
+            ComIPduCallout=ComIPduCallout[0]
         ComIPduCounter = elements[0].xpath("d:ctr[@name='ComIPduCounter']/d:var[@name='ComIPduCounterErrorNotification']/@value", namespaces=namespace)
         ComIPduCounter = list(filter(None, ComIPduCounter))
         if(ComIPduCounter):
@@ -64,9 +67,24 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
         ComSignal_signals=Frame_Signals(xdm_file_path,frame_name)
         if ComIPduDirection==None and ComIPduSignalProcessing==None and ComIPduType==None and ComPduIdRef==None and ComIPduCallout==None and ComIPduCounter==None and ComIPduCounterSize==None and ComIPduCounterStartPosition==None and ComTxModeMode==None and ComTxModeTimePeriod==None:
             result_data = {
-                'Signal Name': [frame_name],
-                'Passed?':["Signal Not Found in COM"],
-            }
+                'Frame Name': [frame_name],
+                'Passed?':["Frame Not Found in COM"],
+                'ComIPduDirection':' ',
+                'ComIPduSignalProcessing':' ',
+                'ComIPduType':' ',
+                'ComPduIdRef':' ',
+                'ComIPduSignalRef':' ',
+                'ComIPduCallout':' ',
+                'ComIPduCounter':' ',
+                'ComIPduCounterSize':' ',
+                'MessagerieIPduCounterSize':' ',
+                'ComIPduCounterSize/MessagerieIPduCounterSize':' ',
+                'ComIPduCounterStartPosition':' ',
+                'MessagerieIPduCounterStartPosition':' ',
+                'ComIPduCounterStartPosition/MessagerieIPduCounterStartPosition':' ',
+                'ComTxModeMode':' ',
+                'ComTxModeTimePeriod':' '
+                }
             write_to_Excel(result_data,file_path,sheet_name)
             return False
         else:
@@ -75,14 +93,31 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
             selected_frame = frames_data[frames_data['Radical'] == frame_name]
             if selected_frame.empty:
                 result_data = {
-                    'Signal Name': [frame_name],
-                    'Passed?':["Signal Not Found in Messagerie"],
+                    'Frame Name': [frame_name],
+                    'Passed?':["Frame Not Found in Messagerie"],
+                    'ComIPduDirection':' ',
+                    'ComIPduSignalProcessing':' ',
+                    'ComIPduType':' ',
+                    'ComPduIdRef':' ',
+                    'ComIPduSignalRef':' ',
+                    'ComIPduCallout':' ',
+                    'ComIPduCounter':' ',
+                    'ComIPduCounterSize':' ',
+                    'MessagerieIPduCounterSize':' ',
+                    'ComIPduCounterSize/MessagerieIPduCounterSize':' ',
+                    'ComIPduCounterStartPosition':' ',
+                    'MessagerieIPduCounterStartPosition':' ',
+                    'ComIPduCounterStartPosition/MessagerieIPduCounterStartPosition':' ',
+                    'ComTxModeMode':' ',
+                    'ComTxModeTimePeriod':' '
                 }
                 write_to_Excel(result_data,file_path,sheet_name)
             else:
                 ComIPduDirectiontst=ComIPduSignalProcessingtst=ComIPduTypetst=ComPduIdReftst=signalstst=ComIPduCallouttst=ComIPduCountertst=ComIPduCounterSizetst=ComIPduCounterStartPositiontst=ComTxModeModetst=ComTxModeTimePeriodtst=True
                 selected_signals = signals_data[signals_data['Radical_T'] == frame_name]
-                if(ComIPduDirection!="RECEIVE" or ComIPduDirection!="SEND"):
+                if(ComIPduDirection=="RECEIVE" or ComIPduDirection=="SEND"):
+                    pass
+                else:
                     ComIPduDirectiontst=False
                     
                 if(ComIPduSignalProcessing!="DEFERRED"):
@@ -94,70 +129,87 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
                 if(frame_name not in ComPduIdRef):
                     ComPduIdReftst=False
                 
-                if(ComSignal_signals==signals):
+                if(ComSignal_signals!=signals):
                     signalstst=False
-
                 chk_exist=cpt_exist=False
                 signal_cpt=None
-                for sig in selected_signals:
-                    if sig["Nécessité de sécurisation par checksum et compteur de process"].values[0]=="CHK":
+                for sig in selected_signals.iterrows():
+                    if sig[1][16]=="CHK":
                         chk_exist=True
-                    if sig["Nécessité de sécurisation par checksum et compteur de process"].values[0]=="CPT":
+                    if sig[1][16]=="CPT":
                         cpt_exist=True
                         signal_cpt=sig
                 frame_id=selected_frame["Identifiant_T"].values[0]
-
+                Tx_test=selected_frame["UCE Emetteur"].str.endswith("E_VCU").any()
+                
                 if(chk_exist):
-                    if(ComIPduDirection=="SEND" and ComIPduCallout=="ISCAN_EveTxF"+ str(frame_id)+"_Callout"):
+                    if(not ComIPduCallout):
+                        ComIPduCallout="Null"
+                    if(Tx_test and ComIPduCallout=="ISCAN_EveTxF"+ str(frame_id)+"_Callout"):
                         pass
-                    elif(ComIPduDirection=="RECEIVE" and ComIPduCallout=="ISCAN_EveRxF"+ str(frame_id)+"_Callout"):
+                    elif(not Tx_test and ComIPduCallout=="ISCAN_EveRxF"+ str(frame_id)+"_Callout"):
                         pass
                     else:
                         ComIPduCallouttst=False
                 else:
                     ComIPduCallouttst=None
-
                 if(cpt_exist):
-                    if(ComIPduDirection=="SEND" and ComIPduCounter=="ISCAN_EveTxF"+ str(frame_id)+"_Callout"):
+                    if(not ComIPduCounter):
+                        ComIPduCounter="Null"
+                    if(Tx_test and ComIPduCounter=="ISCAN_EveTxF"+ str(frame_id)+"_Callout"):
                         pass
-                    elif(ComIPduDirection=="RECEIVE" and ComIPduCounter=="ISCAN_EveRxF"+ str(frame_id)+"_Callout"):
+                    elif(not Tx_test and ComIPduCounter=="ISCAN_EveRxF"+ str(frame_id)+"_Callout"):
                         pass
                     else:
                         ComIPduCountertst=False
-                    
-                    if(ComIPduCounterSize!=signal_cpt["Taille_Max_S"].values[0]):
+                    if(not ComIPduCounterSize):
+                        ComIPduCounterSize="Null"
+                    if(int(ComIPduCounterSize)!=int(signal_cpt[1][3])):
                         ComIPduCounterSizetst=False
 
-                    pos_oct_excel=selected_signal["Position_octet_S"].values[0]
-                    pos_bit_excel=selected_signal["Position_bit_S"].values[0]
-                    pos_oct_com,pos_bit_com=Signal_Position_inFrame(ComBitPosition,ComBitSize)
+                    signal_size_excel=signal_cpt[1][3]
+                    pos_bit_excel=signal_cpt[1][2]
+                    pos_oct_com,pos_bit_com=Signal_Position_inFrame(pos_bit_excel,signal_size_excel)
+                    if(not ComIPduCounterStartPosition):
+                        ComIPduCounterStartPosition=0
                     if(ComIPduCounterStartPosition!=pos_bit_com):
                         ComIPduCounterStartPositiontst=False
                 else:
                     ComIPduCountertst=None  
                     ComIPduCounterSizetst=None
                     ComIPduCounterStartPositiontst=None
-
+                
                 frame_mode_trans=selected_frame["Mode_Transmission_T"].values[0]
-                if(ComIPduDirection=="SEND" and(frame_mode_trans=="Periodique" or frame_mode_trans=="Mixte" ) ):
+                if(Tx_test and(frame_mode_trans=="Periodique" or frame_mode_trans=="Mixte" ) ):
+                    if(not ComTxModeMode ):
+                        ComTxModeMode="Null"
                     if(ComTxModeMode!="PERIODIC"):
                         ComTxModeModetst=False
-                    if(ComTxModeTimePeriod!=selected_frame["Offset"].values[0]):
-                        ComTxModeTimePeriodtst=None#change this to False when sheet updates
+                    if(not ComTxModeTimePeriod):
+                        ComTxModeTimePeriod="Null"
+                    #if(ComTxModeTimePeriod!=selected_frame["Offset"].values[0]):
+                    ComTxModeTimePeriodtst=None#change this to False when sheet updates
                 else:
                     ComTxModeModetst=None
                     ComTxModeTimePeriodtst=None
                 result_data = {
-                    'Signal Name': [frame_name],
+                    'Frame Name': [frame_name],
                     'Passed?':[" " if ComIPduDirectiontst==False or ComIPduSignalProcessingtst==False or ComIPduTypetst==False or ComPduIdReftst==False or signalstst==False or ComIPduCallouttst==False or ComIPduCountertst==False or ComIPduCounterSizetst==False or ComIPduCounterStartPositiontst==False or ComTxModeModetst==False or ComTxModeTimePeriodtst==False else "X" ],
                     'ComIPduDirection':["Error(ComIPduDirection is neither of value 'SEND' or 'RECEIVE')" if ComIPduDirectiontst==False else ComIPduDirection],
                     'ComIPduSignalProcessing':["Error(ComIPduSignalProcessing is not of value 'DEFERRED')" if ComIPduSignalProcessingtst==False else ComIPduSignalProcessing],
                     'ComIPduType':["Error(ComIPduType is not of value 'NORMAL')" if ComIPduTypetst==False else ComIPduType],
                     'ComPduIdRef':["Error(Frame Name is not in ComPduIdRef )" if ComPduIdReftst==False else ComPduIdRef],
-                    'ComIPduSignalRef':["Error(ComIPduSignalRef Signals are conform to the ComSignal signals)" if signalstst==False else signals],
+                    'ComIPduSignalRef':["Error(ComIPduSignalRef Signals are not conform to the ComSignal signals)" if signalstst==False else signals],
                     'ComIPduCallout':["---" if ComIPduCallouttst==None else "Error(ComIPduCallout is not of the correct value)" if ComIPduCallouttst==False else ComIPduCallout],
-                    'ComIPduCounter':["---" if ComIPduCountertst==None else "Error(ComIPduCountertst is not of the correct value)" if ComIPduCountertst==False else ComIPduCounter],
-                    #adddddddd
+                    'ComIPduCounter':["---" if ComIPduCountertst==None else "Error(ComIPduCounter is not of the correct value)" if ComIPduCountertst==False else ComIPduCounter],
+                    'ComIPduCounterSize':["---" if ComIPduCounterSizetst==None else ComIPduCounterSize],
+                    'MessagerieIPduCounterSize':["---" if ComIPduCounterSizetst==None else signal_cpt[1][3]],
+                    'ComIPduCounterSize/MessagerieIPduCounterSize':["---" if ComIPduCounterSizetst==None else "Error(CPT Signal Size Mismatch)" if ComIPduCounterSizetst==False else "None"],
+                    'ComIPduCounterStartPosition':["---" if ComIPduCounterStartPositiontst==None else ComIPduCounterStartPosition],
+                    'MessagerieIPduCounterStartPosition':["---" if ComIPduCounterStartPositiontst==None else pos_bit_com],
+                    'ComIPduCounterStartPosition/MessagerieIPduCounterStartPosition':["---" if ComIPduCounterStartPositiontst==None else "Error(CPT Signal Position in Frame Mismatch)" if ComIPduCounterStartPositiontst==False else "None"],
+                    'ComTxModeMode':["---" if ComTxModeModetst==None else "Error(ComTxModeMode is not of the value 'PERIODIC')" if ComTxModeModetst==False else ComTxModeMode],
+                    'ComTxModeTimePeriod':["---" if ComTxModeTimePeriodtst==None else "Error(ComTxModeTimePeriod is not of the correct value)" if ComTxModeTimePeriodtst==False else ComTxModeTimePeriod]#change this
                 }
                 write_to_Excel(result_data,file_path,sheet_name)
 

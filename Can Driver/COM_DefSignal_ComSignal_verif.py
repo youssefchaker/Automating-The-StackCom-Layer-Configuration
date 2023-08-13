@@ -134,17 +134,17 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 if(ComSignalEndianness!="BIG_ENDIAN"):
                     ComSignalEndiannesstst=False
 
-                signal_Rx_test=selected_signal["Emetteur"].str.endswith("E_VCU").any()
+                signal_Rx_test=not (selected_signal["Emetteur"].str.endswith("E_VCU").any())
                 signal_init_value_excel=hex(0)
                 if signal_Rx_test:
-                    signal_init_value_excel=selected_signal["PROD_INIT"].values[0]
+                    signal_init_value_excel=selected_signal["CONS_INIT"].values[0]
                     if(signal_init_value_excel=="Non applicable" or math.isnan(int(signal_init_value_excel,16))):
                         signal_init_value_excel=hex(0)
                     if(int(signal_init_value_excel,16)!=int(ComSignalInitValue)):
                         ComSignalInitValuetst=False
                     
                 else:
-                    signal_init_value_excel=selected_signal["CONS_INIT"].values[0]
+                    signal_init_value_excel=selected_signal["PROD_INIT"].values[0]
                     if(signal_init_value_excel=="Non applicable" or math.isnan(int(signal_init_value_excel,16))):
                         signal_init_value_excel=hex(0)
                     if(int(signal_init_value_excel,16)!=int(ComSignalInitValue)):

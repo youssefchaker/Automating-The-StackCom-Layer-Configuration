@@ -30,7 +30,7 @@ def cleanExcelFrameData(excel_file):
     return df
 
 # Define expected headers for cleaning the Excel data
-expected_signal_headers = {'SIGNALS': ['Radical_T', 'Position_octet_S', 'Position_bit_S', 'Taille_Max_S', 'Mnemonique_S', 'Type_S', 'Valeur_Min_S', 'Valeur_Max_S', 'Resolution_S', 'Offset_S', 'Valeur_Invalide_S', 'Valeur_Indisponible_S', 'Valeur_Interdite_S','PROD_INIT','CONS_INIT' ,'Emetteur']}
+expected_signal_headers = {'SIGNALS': ['Radical_T', 'Position_octet_S', 'Position_bit_S', 'Taille_Max_S', 'Mnemonique_S', 'Type_S', 'Valeur_Min_S', 'Valeur_Max_S', 'Resolution_S', 'Offset_S', 'Valeur_Invalide_S', 'Valeur_Indisponible_S', 'Valeur_Interdite_S','PROD_INIT','CONS_INIT' ,'Emetteur','Nécessité de sécurisation par checksum et compteur de process']}
 
 # Function to clean the Excel data and keep only the necessary columns
 def cleanExcelSignalData(excel_file):
