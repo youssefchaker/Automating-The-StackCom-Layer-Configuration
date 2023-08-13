@@ -13,7 +13,7 @@ file_path = os.path.join(os.getcwd(), 'Output.xlsx')
 namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd','a':'http://www.tresos.de/_projects/DataModel2/08/attribute.xsd'}
 
 # Define expected headers for cleaning the Excel data
-expected_trame_headers = {'FRAMES': ['Checked','Radical', 'Identifiant_T', 'Taille_Max_T', 'Lmin_T', 'Mode_Transmission_T', 'Periode_T', 'UCE Emetteur', 'AEE10r3 Reseau_T']}
+expected_trame_headers = {'FRAMES': ['Checked','Radical', 'Identifiant_T', 'Taille_Max_T', 'Mode_Transmission_T', 'Periode_T', 'UCE Emetteur', 'AEE10r3 Reseau_T']}
 
 # Function to clean the Excel data and keep only the necessary columns
 def cleanExcelFrameData(excel_file):
@@ -30,7 +30,7 @@ def cleanExcelFrameData(excel_file):
     return df
 
 # Define expected headers for cleaning the Excel data
-expected_signal_headers = {'SIGNALS': ['Radical_T', 'Position_octet_S', 'Position_bit_S', 'Taille_Max_S', 'Mnemonique_S', 'Type_S', 'Valeur_Min_S', 'Valeur_Max_S', 'Resolution_S', 'Offset_S', 'Valeur_Invalide_S', 'Valeur_Indisponible_S', 'Valeur_Interdite_S','PROD_INIT','CONS_INIT' ,'Emetteur','Nécessité de sécurisation par checksum et compteur de process']}
+expected_signal_headers = {'SIGNALS': ['Radical_T', 'Position_octet_S', 'Position_bit_S', 'Taille_Max_S', 'Mnemonique_S', 'Valeur_Min_S', 'Valeur_Max_S', 'Resolution_S', 'Offset_S','PROD_INIT','CONS_INIT' ,'Emetteur','Nécessité de sécurisation par checksum et compteur de process']}
 
 # Function to clean the Excel data and keep only the necessary columns
 def cleanExcelSignalData(excel_file):
@@ -112,7 +112,7 @@ def ordered_by_id_CanIf(xdm_file,order_var,parent):
         return True
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error occurred while processing the CANIF file: {e}")
         return False
 
 #Ordering by index table PDUR
@@ -154,7 +154,54 @@ def ordered_by_id_PDUR(xdm_file,nodes):
         return True
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error occurred while processing the PDUR file: {e}")
+        return False
+
+#Ordering by ComIPduHandleId or ComHandleId check
+def ordered_by_id_COM(xdm_file,order_var,parent):
+    try:
+        data_type=""
+        with open(xdm_file, 'r') as file:
+            xdm_content = file.read()
+        root = etree.fromstring(xdm_content)
+        if(order_var=="ComIPduHandleId"):
+            data_type="frame"
+        else:
+            data_type="signal"
+        elements = root.xpath(f".//d:lst[@name='{parent}']/d:ctr", namespaces=namespace)
+        data = [(ctr.attrib['name'], ctr.xpath(f"string(d:var[@name='{order_var}']/@value)", namespaces=namespace)) for ctr in elements]
+        data = [(name, Id) for name, Id in data if Id.strip()]
+        first_Id = int(data[0][1])
+        if data_type=="frame":
+            if first_Id != 0:
+                return "The first "+data_type+" 's ("+order_var+") should be (0)', but found ("+str(first_Id)+")."
+        else:
+            if first_Id != 1:
+                return "The first "+data_type+" 's ("+order_var+") should be (1)', but found ("+str(first_Id)+")."
+        Ids = [int(Id) for _, Id in data]
+        if len(Ids) != len(set(Ids)):
+            duplicates = [name for name, Id in data if Ids.count(int(Id)) > 1]
+            errorstring=""
+            for name in duplicates:
+                errorstring=errorstring+" "+"The "+data_type+" ("+frame_name+") has a duplicate ("+order_var+").\n"
+            return errorstring
+
+        Last_Id = int(data[-1][1])
+        total = len(data)
+        if data_type=="frame":
+            if Last_Id != total - 1:
+                return "The last "+data_type+" 's ("+order_var+") should be ("+str(total-1)+"), but found ("+str(Last_Id)+")."
+        else:
+            if Last_Id != total:
+                return "The last "+data_type+" 's ("+order_var+") should be ("+str(total)+"), but found ("+str(Last_Id)+")."
+        if any(int(data[i - 1][1]) > int(data[i][1]) for i in range(1, len(data))):
+            name = data[next(i for i in range(1, len(data)) if int(data[i - 1][1]) > int(data[i][1]))][0]
+            return "The "+data_type+" ("+name+") has a jump in ("+order_var+")."
+
+        return True
+
+    except Exception as e:
+        print(f"Error occurred while processing the COM file: {e}")
         return False
 
 #Computes the signal's position in the frame
