@@ -5,6 +5,7 @@ from lxml import etree
 import tkinter as tk
 from tkinter import filedialog
 import math
+from tkinter import ttk
 
 #the excel output file file path
 file_path = os.path.join(os.getcwd(), 'Output.xlsx')
@@ -43,6 +44,18 @@ def cleanExcelSignalData(excel_file):
     
     return df
 
+def display_frame_names(selected_excel_file,frame_entry):
+    if selected_excel_file:
+        cleaned_df = cleanExcelFrameData(selected_excel_file)
+        frame_names = cleaned_df['Radical'].tolist()
+        frame_entry['values'] = frame_names
+
+def display_signal_names(selected_excel_file,signal_entry):
+    if selected_excel_file:
+        cleaned_df = cleanExcelSignalData(selected_excel_file)
+        full_names = cleaned_df.apply(lambda row: row['Mnemonique_S'] + "_" + row['Radical_T'], axis=1)
+        signal_names = full_names.tolist()
+        signal_entry['values'] = signal_names
 
 #function responsible for writiting the output to the excel file
 def write_to_Excel(result_data, file_path,sheet_name):
@@ -70,14 +83,50 @@ def write_to_Excel(result_data, file_path,sheet_name):
         writer.save()
 
 # function responsable for emptying the designated excel sheet
-def clear_excel(sheet_name):
+def clear_excel(sheet_name,completion_label):
     if os.path.exists(file_path):
         book = load_workbook(file_path)
         if sheet_name in book.sheetnames:
             sheet = book[sheet_name]
             sheet.delete_rows(2, sheet.max_row - 1) 
         book.save(file_path)
+    completion_label.config(text="Output File Cleared", fg="blue")
     
+#select the excel file from the interface
+def browse_excel_frames(excel_file_entry,frame_entry):
+    excel_file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+    if not excel_file_path:
+        return
+    excel_file_entry.delete(0, tk.END)
+    excel_file_entry.insert(tk.END, excel_file_path)
+    display_frame_names(excel_file_path,frame_entry)
+
+#select the excel file from the interface
+def browse_excel_signals(excel_file_entry,signal_entry):
+    excel_file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+    if not excel_file_path:
+        return
+    excel_file_entry.delete(0, tk.END)
+    excel_file_entry.insert(tk.END, excel_file_path)
+    display_signal_names(excel_file_path,signal_entry)
+
+
+#select the xdm file from the interface
+def browse_xdm(xdm_file_entry):
+    xdm_file_path = filedialog.askopenfilename(filetypes=[("XDM files", "*.xdm")])
+    if not xdm_file_path:
+        return
+    xdm_file_entry.delete(0, tk.END)
+    xdm_file_entry.insert(tk.END, xdm_file_path)
+
+#execute functionality on button click
+def verify_button_click(excel_file_path,xdm_file_path,frame_name):
+    excel_file_path = excel_file_entry.get()
+    xdm_file_path = xdm_file_entry.get()
+    frame_name = frame_entry.get()
+
+    verify_frame(excel_file_path, xdm_file_path, frame_name)
+    completion_label.config(text="Output Created", fg="green")
 
 #Ordering by index table CanIF
 def ordered_by_id_CanIf(xdm_file,order_var,parent):

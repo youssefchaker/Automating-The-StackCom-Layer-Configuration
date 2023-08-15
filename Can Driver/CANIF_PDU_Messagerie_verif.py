@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelFrameData,etree,tk,filedialog,namespace
+from statfuncs import *
 
 sheet_name="CANIF_PDU_Messagerie_verif"
 
@@ -104,28 +104,6 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
                 print(f"Error occurred : {e}")
                 return False     
 
-def clean_output(sheet_name):
-    clear_excel(sheet_name)
-    completion_label.config(text="Output File Cleared", fg="blue")    
-
-
-#select the excel file from the interface
-def browse_excel():
-    excel_file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
-    if not excel_file_path:
-        return
-    excel_file_entry.delete(0, tk.END)
-    excel_file_entry.insert(tk.END, excel_file_path)
-
-
-#select the xdm file from the interface
-def browse_xdm():
-    xdm_file_path = filedialog.askopenfilename(filetypes=[("XDM files", "*.xdm")])
-    if not xdm_file_path:
-        return
-    xdm_file_entry.delete(0, tk.END)
-    xdm_file_entry.insert(tk.END, xdm_file_path)
-
 
 #execute functionality on button click
 def verify_button_click():
@@ -139,7 +117,7 @@ def verify_button_click():
 
 # Create the GUI
 root = tk.Tk()
-root.title("Frame Info CANIF/Messagerie Verification")
+root.title("CanIf Frame Info CANIF/Messagerie Verification")
 
 frame = tk.Frame(root)
 frame.pack(padx=10, pady=10)
@@ -150,7 +128,13 @@ excel_file_label.grid(row=0, column=0, padx=5, pady=5)
 excel_file_entry = tk.Entry(frame)
 excel_file_entry.grid(row=0, column=1, padx=5, pady=5)
 
-excel_file_button = tk.Button(frame, text="Browse", command=browse_excel)
+frame_label = tk.Label(frame, text="Enter Frame Name:")
+frame_label.grid(row=2, column=0, padx=5, pady=5)
+
+frame_entry = ttk.Combobox(frame)
+frame_entry.grid(row=2, column=1, padx=5, pady=5)
+
+excel_file_button = tk.Button(frame, text="Browse", command=lambda:browse_excel_frames(excel_file_entry,frame_entry))
 excel_file_button.grid(row=0, column=2, padx=5, pady=5)
 
 xdm_file_label = tk.Label(frame, text="Select Canif File:")
@@ -159,22 +143,16 @@ xdm_file_label.grid(row=1, column=0, padx=5, pady=5)
 xdm_file_entry = tk.Entry(frame)
 xdm_file_entry.grid(row=1, column=1, padx=5, pady=5)
 
-xdm_file_button = tk.Button(frame, text="Browse", command=browse_xdm)
+xdm_file_button = tk.Button(frame, text="Browse", command=lambda:browse_xdm(xdm_file_entry))
 xdm_file_button.grid(row=1, column=2, padx=5, pady=5)
-
-frame_label = tk.Label(frame, text="Enter Frame Name:")
-frame_label.grid(row=2, column=0, padx=5, pady=5)
-
-frame_entry = tk.Entry(frame)
-frame_entry.grid(row=2, column=1, padx=5, pady=5)
 
 verify_button = tk.Button(frame, text="Verify", command=verify_button_click)
 verify_button.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Output", command=lambda:clean_output(sheet_name))
-clear_excel_button.grid(row=6, column=0, columnspan=3, padx=5, pady=5)
-
 completion_label = tk.Label(frame, text="", fg="green")
 completion_label.grid(row=7, column=0, columnspan=3, padx=5, pady=5)
+
+clear_excel_button = tk.Button(frame, text="Clear Output", command=lambda:clear_excel(sheet_name,completion_label))
+clear_excel_button.grid(row=6, column=0, columnspan=3, padx=5, pady=5)
 
 root.mainloop()

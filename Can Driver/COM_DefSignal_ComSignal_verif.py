@@ -1,5 +1,5 @@
 import statfuncs
-from statfuncs import clear_excel,write_to_Excel,file_path,cleanExcelSignalData,etree,tk,filedialog,namespace,Signal_Type,Signal_Position_inFrame,Signal_Type,cleanExcelFrameData,math
+from statfuncs import *
 
 sheet_name="COM_DefSignal_ComSignal_verif"
 
@@ -223,27 +223,6 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 print(f"Error occurred : {e}")
                 return False   
 
-
-
-
-#select the excel file from the interface
-def browse_excel():
-    excel_file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
-    if not excel_file_path:
-        return
-    excel_file_entry.delete(0, tk.END)
-    excel_file_entry.insert(tk.END, excel_file_path)
-
-
-#select the xdm file from the interface
-def browse_xdm():
-    xdm_file_path = filedialog.askopenfilename(filetypes=[("XDM files", "*.xdm")])
-    if not xdm_file_path:
-        return
-    xdm_file_entry.delete(0, tk.END)
-    xdm_file_entry.insert(tk.END, xdm_file_path)
-
-
 #execute functionality on button click
 def verify_button_click():
     excel_file_path = excel_file_entry.get()
@@ -253,13 +232,9 @@ def verify_button_click():
     verify_signal(excel_file_path, xdm_file_path, signal_name)
     completion_label.config(text="Output Created", fg="green")
 
-def clean_output(sheet_name):
-    clear_excel(sheet_name)
-    completion_label.config(text="Output File Cleared", fg="blue")
-
 # Create the GUI
 root = tk.Tk()
-root.title("Signal Info Verification in ComSignal")
+root.title("Com Signal Info Verification in ComSignal")
 
 frame = tk.Frame(root)
 frame.pack(padx=10, pady=10)
@@ -270,7 +245,13 @@ excel_file_label.grid(row=0, column=0, padx=5, pady=5)
 excel_file_entry = tk.Entry(frame)
 excel_file_entry.grid(row=0, column=1, padx=5, pady=5)
 
-excel_file_button = tk.Button(frame, text="Browse", command=browse_excel)
+signal_label = tk.Label(frame, text="Enter Signal Name:")
+signal_label.grid(row=2, column=0, padx=5, pady=5)
+
+signal_entry = ttk.Combobox(frame)
+signal_entry.grid(row=2, column=1, padx=5, pady=5)
+
+excel_file_button = tk.Button(frame, text="Browse", command=lambda:browse_excel_signals(excel_file_entry,signal_entry))
 excel_file_button.grid(row=0, column=2, padx=5, pady=5)
 
 xdm_file_label = tk.Label(frame, text="Select Com File:")
@@ -279,22 +260,16 @@ xdm_file_label.grid(row=1, column=0, padx=5, pady=5)
 xdm_file_entry = tk.Entry(frame)
 xdm_file_entry.grid(row=1, column=1, padx=5, pady=5)
 
-xdm_file_button = tk.Button(frame, text="Browse", command=browse_xdm)
+xdm_file_button = tk.Button(frame, text="Browse", command=lambda:browse_xdm(xdm_file_entry))
 xdm_file_button.grid(row=1, column=2, padx=5, pady=5)
-
-signal_label = tk.Label(frame, text="Enter Signal Name:")
-signal_label.grid(row=2, column=0, padx=5, pady=5)
-
-signal_entry = tk.Entry(frame)
-signal_entry.grid(row=2, column=1, padx=5, pady=5)
 
 verify_button = tk.Button(frame, text="Verify", command=verify_button_click)
 verify_button.grid(row=3, column=0, columnspan=3, padx=5, pady=5)
 
-clear_excel_button = tk.Button(frame, text="Clear Output", command=lambda:clean_output(sheet_name))
-clear_excel_button.grid(row=6, column=0, columnspan=3, padx=5, pady=5)
-
 completion_label = tk.Label(frame, text="", fg="green")
 completion_label.grid(row=7, column=0, columnspan=3, padx=5, pady=5)
+
+clear_excel_button = tk.Button(frame, text="Clear Output", command=lambda:clear_excel(sheet_name,completion_label))
+clear_excel_button.grid(row=6, column=0, columnspan=3, padx=5, pady=5)
 
 root.mainloop()
