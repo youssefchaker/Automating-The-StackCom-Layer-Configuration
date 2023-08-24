@@ -172,11 +172,11 @@ def ordered_by_id_PDUR(xdm_file,nodes):
 
         root = etree.fromstring(xdm_content)
         if(nodes[2]=='PduRDestPdu'):
-            ctr_elements = root.xpath(f".//d:ctr[@name='{nodes[0]}']/d:lst[@name='{nodes[1]}']/d:ctr/d:lst[@name='{nodes[2]}']/d:ctr", namespaces=namespace)
-            frames_data = [(ctr.attrib['name'], ctr.xpath(f"string(.//d:var[@name='{nodes[3]}']/@value)", namespaces=namespace)) for ctr in ctr_elements]
+            elements = root.xpath(f".//d:ctr[@name='{nodes[0]}']/d:lst[@name='{nodes[1]}']/d:ctr/d:lst[@name='{nodes[2]}']/d:ctr", namespaces=namespace)
+            frames_data = [(ctr.attrib['name'],ctr.xpath(f".//d:var[@name='{nodes[3]}']/@value", namespaces=namespace)[0]) for ctr in elements]
         else:
             elements = root.xpath(f".//d:ctr[@name='{nodes[0]}']/d:lst[@name='{nodes[1]}']/d:ctr", namespaces=namespace)
-            frames_data = [(ctr.attrib['name'], ctr.xpath(f"string(.//d:ctr[@name='{nodes[2]}']/d:var[@name='{nodes[3]}']/@value)", namespaces=namespace)) for ctr in elements]
+            frames_data = [(ctr.attrib['name'], ctr.xpath(f".//d:ctr[@name='{nodes[2]}']/d:var[@name='{nodes[3]}']/@value", namespaces=namespace)[0]) for ctr in elements]
 
         frames_data = [(name, Id) for name, Id in frames_data if Id.strip()]
         first_Id = int(frames_data[0][1])
@@ -188,17 +188,21 @@ def ordered_by_id_PDUR(xdm_file,nodes):
             duplicates = [frame_name for frame_name, Id in frames_data if Ids.count(int(Id)) > 1]
             errorstring=""
             for frame_name in duplicates:
-                errorstring=errorstring+"The frame ("+frame_name+") has a duplicate ("+nodes[3]+").\n"
+                errorstring=errorstring+"The frame ("+frame_name+") has a duplicate "+nodes[3]+".\n"
             return errorstring
 
         Last_Id = int(frames_data[-1][1])
         total_frames = len(frames_data)
-        if Last_Id != total_frames - 1:
-            return "The last frame's ("+nodes[3]+") should be ("+str(total_frames-1)+"), but found ("+str(Last_Id)+")."
-
+        if nodes[2]=='PduRDestPdu':
+            if Last_Id != total_frames:
+                return "The last frame's ("+order_var+") should be ("+str(total)+"), but found ("+str(Last_Id)+")."
+        else:
+            if Last_Id != total_frames-1:
+                return "The last frame's ("+order_var+") should be ("+str(total-1)+"), but found ("+str(Last_Id)+")."
+                
         if any(int(frames_data[i - 1][1]) > int(frames_data[i][1]) for i in range(1, len(frames_data))):
             frame_name = frames_data[next(i for i in range(1, len(frames_data)) if int(frames_data[i - 1][1]) > int(frames_data[i][1]))][0]
-            return "The frame ("+frame_name+") has a jump in ("+nodes[3]+")."
+            return "The frame ("+frame_name+") has a jump in "+nodes[3]+"."
 
         return True
 

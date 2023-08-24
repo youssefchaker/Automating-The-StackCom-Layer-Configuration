@@ -58,7 +58,6 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
     try:
         PduRSrcPdu, PduRSrcBswModuleRef, PduRSrcPduRef,PduRSrcPduUpTxConf,PduRTransmissionConfirmation,PduRDestPduDataProvision,PduRDestBswModuleRef,PduRDestPduRef = extract_PdurValues(xdm_file_path, frame_name)
         PduRRoutingPathGroup=Verif_RoutingGroupsValue(xdm_file_path,frame_name)
-        print(PduRSrcPdu, PduRSrcBswModuleRef, PduRSrcPduRef,PduRSrcPduUpTxConf,PduRTransmissionConfirmation,PduRDestPduDataProvision,PduRDestBswModuleRef,PduRDestPduRef,PduRRoutingPathGroup)
         if  PduRSrcPdu == None and PduRSrcBswModuleRef == None and PduRSrcPduRef == None and PduRSrcPduUpTxConf == None and PduRTransmissionConfirmation == None and PduRDestPduDataProvision == None and PduRDestBswModuleRef == None and PduRDestPduRef == None:
             result_data = {
                 'Frame Name': [frame_name],
@@ -137,7 +136,6 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
                 if(PduRDestPduDataProvision!="PduR_UPPER"):
                     PduRDestPduDataProvisiontst=False
 
-            print(PduRSrcPdutst,PduRSrcBswModuleReftst,PduRSrcPduReftst,PduRSrcPduUpTxConftst,PduRTransmissionConfirmationtst,PduRDestPduDataProvisiontst,PduRDestBswModuleReftst,PduRDestPduReftst)
             result_data = {
                 'Frame Name': [frame_name],
                 'Passed?':[" " if PduRSrcPdutst == False or PduRSrcBswModuleReftst == False or PduRSrcPduReftst == False or PduRSrcPduUpTxConftst == False or PduRTransmissionConfirmationtst == False or PduRDestPduDataProvisiontst == False or PduRDestBswModuleReftst == False or PduRDestPduReftst == False else "X"],
