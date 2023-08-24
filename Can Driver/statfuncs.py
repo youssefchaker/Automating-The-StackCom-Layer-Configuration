@@ -227,26 +227,26 @@ def ordered_by_id_COM(xdm_file,order_var,parent):
         first_Id = int(data[0][1])
         if data_type=="frame":
             if first_Id != 0:
-                return "The first "+data_type+" 's ("+order_var+") should be (0)', but found ("+str(first_Id)+")."
+                return "The first "+data_type+"'s ("+order_var+") should be (0), but found ("+str(first_Id)+")."
         else:
             if first_Id != 1:
-                return "The first "+data_type+" 's ("+order_var+") should be (1)', but found ("+str(first_Id)+")."
+                return "The first "+data_type+"'s ("+order_var+") should be (1), but found ("+str(first_Id)+")."
         Ids = [int(Id) for _, Id in data]
         if len(Ids) != len(set(Ids)):
             duplicates = [name for name, Id in data if Ids.count(int(Id)) > 1]
             errorstring=""
             for name in duplicates:
-                errorstring=errorstring+" "+"The "+data_type+" ("+frame_name+") has a duplicate ("+order_var+").\n"
+                errorstring=errorstring+" "+"The "+data_type+" ("+name+") has a duplicate ("+order_var+").\n"
             return errorstring
 
         Last_Id = int(data[-1][1])
         total = len(data)
         if data_type=="frame":
             if Last_Id != total - 1:
-                return "The last "+data_type+" 's ("+order_var+") should be ("+str(total-1)+"), but found ("+str(Last_Id)+")."
+                return "The last "+data_type+"'s ("+order_var+") should be ("+str(total-1)+"), but found ("+str(Last_Id)+")."
         else:
             if Last_Id != total:
-                return "The last "+data_type+" 's ("+order_var+") should be ("+str(total)+"), but found ("+str(Last_Id)+")."
+                return "The last "+data_type+"'s ("+order_var+") should be ("+str(total)+"), but found ("+str(Last_Id)+")."
         if any(int(data[i - 1][1]) > int(data[i][1]) for i in range(1, len(data))):
             name = data[next(i for i in range(1, len(data)) if int(data[i - 1][1]) > int(data[i][1]))][0]
             return "The "+data_type+" ("+name+") has a jump in ("+order_var+")."

@@ -17,11 +17,11 @@ def ordered_by_RX_TX(xdm_file):
 
         if receive_indices and transmit_indices:
             if receive_indices[-1] > transmit_indices[0]:
-                frame_name = ctr_elements[transmit_indices[0]].attrib['name']
+                frame_name = ctr_elements[transmit_indices[-1]].attrib['name']
                 return "TRANSMIT frame("+frame_name+") before RECEIVE frames."
 
             if any(ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces=namespace) == "RECEIVE" for ctr in ctr_elements[transmit_indices[-1] + 1:]):
-                frame_name = ctr_elements[transmit_indices[0]].attrib['name']
+                frame_name = ctr_elements[transmit_indices[-1]].attrib['name']
                 return "TRANSMIT frame("+frame_name+"}) before RECEIVE frames."
 
         return True

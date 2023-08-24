@@ -131,6 +131,7 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
                 
                 if(ComSignal_signals!=signals):
                     signalstst=False
+
                 chk_exist=cpt_exist=False
                 signal_cpt=None
                 for sig in selected_signals.iterrows():
@@ -186,7 +187,8 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
                 if(Tx_test and(frame_mode_trans=="Periodique" or frame_mode_trans=="Mixte" or frame_mode_trans=="Périodique" ) ):
                     if(not ComTxModeMode ):
                         ComTxModeMode="Null"
-                    if(ComTxModeMode!="PERIODIC"):
+                        ComTxModeModetst=False
+                    elif(ComTxModeMode!="PERIODIC"):
                         ComTxModeModetst=False
                     if(not ComTxModeTimePeriod):
                         ComTxModeTimePeriod="Null"

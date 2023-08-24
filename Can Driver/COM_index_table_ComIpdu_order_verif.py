@@ -17,11 +17,11 @@ def ordered_by_TX_RX(xdm_file):
 
         if send_indices and receive_indices:
             if send_indices[-1] > receive_indices[0]:
-                frame_name = ctr_elements[receive_indices[0]].attrib['name']
+                frame_name = ctr_elements[receive_indices[-1]].attrib['name']
                 return "SEND frames after RECEIVE frame("+frame_name+")"
 
             if any(ctr.xpath("string(d:var[@name='ComIPduDirection']/@value)", namespaces=namespace) == "SEND" for ctr in ctr_elements[receive_indices[-1] + 1:]):
-                frame_name = ctr_elements[receive_indices[0]].attrib['name']
+                frame_name = ctr_elements[receive_indices[-1]].attrib['name']
                 return "SEND frames after RECEIVE frame("+frame_name+")"
 
         return True
@@ -29,6 +29,7 @@ def ordered_by_TX_RX(xdm_file):
     except Exception as e:
         print(f"Error occurred while processing the XDM file: {e}")
         return False
+
 
 
 def check_order():
