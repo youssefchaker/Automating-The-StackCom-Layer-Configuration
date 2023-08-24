@@ -64,7 +64,6 @@ def Frame_Signals(xdm_file,frame_name):
 def verify_frame(excel_file_path,xdm_file_path, frame_name):
     try:
         ComIPduDirection,ComIPduSignalProcessing,ComIPduType,ComPduIdRef,signals,ComIPduCallout,ComIPduCounter,ComIPduCounterSize,ComIPduCounterStartPosition,ComTxModeMode,ComTxModeTimePeriod= extract_ComValues(xdm_file_path, frame_name)
-        print(ComIPduDirection,ComIPduSignalProcessing,ComIPduType,ComPduIdRef,signals,ComIPduCallout,ComIPduCounter,ComIPduCounterSize,ComIPduCounterStartPosition,ComTxModeMode,ComTxModeTimePeriod)
         ComSignal_signals=Frame_Signals(xdm_file_path,frame_name)
         if ComIPduDirection==None and ComIPduSignalProcessing==None and ComIPduType==None and ComPduIdRef==None and ComIPduCallout==None and ComIPduCounter==None and ComIPduCounterSize==None and ComIPduCounterStartPosition==None and ComTxModeMode==None and ComTxModeTimePeriod==None:
             result_data = {
@@ -168,23 +167,21 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
                     if(not ComIPduCounterSize):
                         ComIPduCounterSize="Null"
                         ComIPduCounterSizetst=False
-                    elif(ComIPduCounterSize!=int(signal_cpt[1][3])):
+                    elif(int(ComIPduCounterSize)!=int(signal_cpt[1][3])):
                         ComIPduCounterSizetst=False
 
                     signal_size_excel=signal_cpt[1][3]
                     pos_bit_excel=signal_cpt[1][2]
-                    print(signal_size_excel)
-                    print(pos_bit_excel)
                     pos_oct_com,pos_bit_com=Signal_Position_inFrame(pos_bit_excel,signal_size_excel)
                     if(not ComIPduCounterStartPosition):
-                        ComIPduCounterStartPosition=0
-                    if(ComIPduCounterStartPosition!=pos_bit_com):
+                        ComIPduCounterStartPosition="Null"
+                        ComIPduCounterStartPositiontst=False
+                    elif(int(ComIPduCounterStartPosition)!=int(pos_bit_com)):
                         ComIPduCounterStartPositiontst=False
                 else:
                     ComIPduCountertst=None  
                     ComIPduCounterSizetst=None
                     ComIPduCounterStartPositiontst=None
-                
                 frame_mode_trans=selected_frame["Mode_Transmission_T"].values[0]
                 if(Tx_test and(frame_mode_trans=="Periodique" or frame_mode_trans=="Mixte" ) ):
                     if(not ComTxModeMode ):

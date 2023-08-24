@@ -58,6 +58,7 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
     try:
         PduRSrcPdu, PduRSrcBswModuleRef, PduRSrcPduRef,PduRSrcPduUpTxConf,PduRTransmissionConfirmation,PduRDestPduDataProvision,PduRDestBswModuleRef,PduRDestPduRef = extract_PdurValues(xdm_file_path, frame_name)
         PduRRoutingPathGroup=Verif_RoutingGroupsValue(xdm_file_path,frame_name)
+        print(PduRSrcPdu, PduRSrcBswModuleRef, PduRSrcPduRef,PduRSrcPduUpTxConf,PduRTransmissionConfirmation,PduRDestPduDataProvision,PduRDestBswModuleRef,PduRDestPduRef,PduRRoutingPathGroup)
         if  PduRSrcPdu == None and PduRSrcBswModuleRef == None and PduRSrcPduRef == None and PduRSrcPduUpTxConf == None and PduRTransmissionConfirmation == None and PduRDestPduDataProvision == None and PduRDestBswModuleRef == None and PduRDestPduRef == None:
             result_data = {
                 'Frame Name': [frame_name],
@@ -135,6 +136,8 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
                     PduRDestBswModuleReftst=False
                 if(PduRDestPduDataProvision!="PduR_UPPER"):
                     PduRDestPduDataProvisiontst=False
+
+            print(PduRSrcPdutst,PduRSrcBswModuleReftst,PduRSrcPduReftst,PduRSrcPduUpTxConftst,PduRTransmissionConfirmationtst,PduRDestPduDataProvisiontst,PduRDestBswModuleReftst,PduRDestPduReftst)
             result_data = {
                 'Frame Name': [frame_name],
                 'Passed?':[" " if PduRSrcPdutst == False or PduRSrcBswModuleReftst == False or PduRSrcPduReftst == False or PduRSrcPduUpTxConftst == False or PduRTransmissionConfirmationtst == False or PduRDestPduDataProvisiontst == False or PduRDestBswModuleReftst == False or PduRDestPduReftst == False else "X"],
@@ -142,11 +145,11 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
                 'PduRSrcPdu':[PduRSrcPdu if PduRSrcPdutst else "Error(PduRSrcPdu is not "+frame_name+"_Src"+")"],
                 'PduRSrcPduUpTxConf':[PduRSrcPduUpTxConf if PduRSrcPduUpTxConftst else "Error(PduRSrcPduUpTxConf is not of the value 'true'"],
                 'PduRSrcPduRef':[PduRSrcPduRef if PduRSrcPduReftst else "Error(PduRSrcPduRef Mismatch)"],
-                'PduRSrcBswModuleRef':["Error(PduRSrcBswModuleRef is not '/PduR/PduR/BswMod_Com' for Tx frame )" if PduRSrcBswModuleReftst==False and frame_name=="Tx" else "Error(PduRSrcBswModuleRef is not '/PduR/PduR/BswMod_CanIf' for Rx frame )" if  PduRSrcBswModuleReftst==False and frame_name=="Rx" else PduRSrcBswModuleRef],
+                'PduRSrcBswModuleRef':["Error(PduRSrcBswModuleRef is not '/PduR/PduR/BswMod_Com' for Tx frame )" if PduRSrcBswModuleReftst==False and frame_type=="Tx" else "Error(PduRSrcBswModuleRef is not '/PduR/PduR/BswMod_CanIf' for Rx frame )" if  PduRSrcBswModuleReftst==False and frame_type=="Rx" else PduRSrcBswModuleRef],
                 'PduRTransmissionConfirmation':[PduRTransmissionConfirmation if PduRTransmissionConfirmationtst else "Error(PduRTransmissionConfirmation is not of the value 'true'"],
                 'PduRDestPduRef':[PduRDestPduRef if PduRDestPduReftst else "Error(PduRDestPduRef Mismatch)"],
-                'PduRDestPduDataProvision':["Error(PduRDestPduDataProvision is not 'PDUR_DIRECT' for Tx frame )" if PduRDestPduDataProvisiontst==False and frame_name=="Tx" else "Error(PduRDestPduDataProvision is not 'PduR_UPPER' for Rx frame )" if  PduRDestPduDataProvisiontst==False and frame_name=="Rx" else PduRDestPduDataProvision],
-                'PduRDestBswModuleRef':["Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_CanIf' for Tx frame )" if PduRDestBswModuleReftst==False and frame_name=="Tx" else "Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_Com' for Rx frame )" if  PduRDestBswModuleReftst==False and frame_name=="Rx" else PduRDestBswModuleRef ],
+                'PduRDestPduDataProvision':["Error(PduRDestPduDataProvision is not 'PDUR_DIRECT' for Tx frame )" if PduRDestPduDataProvisiontst==False and frame_type=="Tx" else "Error(PduRDestPduDataProvision is not 'PduR_UPPER' for Rx frame )" if  PduRDestPduDataProvisiontst==False and frame_type=="Rx" else PduRDestPduDataProvision],
+                'PduRDestBswModuleRef':["Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_CanIf' for Tx frame )" if PduRDestBswModuleReftst==False and frame_type=="Tx" else "Error(PduRDestBswModuleRef is not '/PduR/PduR/BswMod_Com' for Rx frame )" if  PduRDestBswModuleReftst==False and frame_type=="Rx" else PduRDestBswModuleRef ],
                 'PduRRoutingPathGroup':[PduRRoutingPathGroup]
             }
             write_to_Excel(result_data,file_path,sheet_name)

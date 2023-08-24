@@ -18,11 +18,11 @@ def ordered_by_RX_TX(xdm_file):
         if receive_indices and transmit_indices:
             if receive_indices[-1] > transmit_indices[0]:
                 frame_name = ctr_elements[transmit_indices[0]].attrib['name']
-                return "TRANSMIT frame("+frame_name+") before RECEIVE frames"
+                return "TRANSMIT frame("+frame_name+") before RECEIVE frames."
 
             if any(ctr.xpath("string(d:var[@name='CanObjectType']/@value)", namespaces=namespace) == "RECEIVE" for ctr in ctr_elements[transmit_indices[-1] + 1:]):
                 frame_name = ctr_elements[transmit_indices[0]].attrib['name']
-                return "TRANSMIT frame("+frame_name+"}) before RECEIVE frames"
+                return "TRANSMIT frame("+frame_name+"}) before RECEIVE frames."
 
         return True
 
@@ -48,7 +48,7 @@ def ordered_by_CAN_Ref(xdm_file):
                 if index is not None:
                     if prev_index is not None and index < prev_index:
                         frame_name = ctr.attrib['name']
-                        return "The frame ("+frame_name+") has incorrect 'CanControllerRef' attribute order should be ("+expected_order[index]+")}"
+                        return "The frame ("+frame_name+") has incorrect 'CanControllerRef' attribute order should be ("+expected_order[index]+")"
                     prev_index = index
                 else:
                     frame_name = ctr.attrib['name']
@@ -96,7 +96,7 @@ def ordered_by_id(xdm_file):
             duplicates = [frame_name for frame_name, obj_id in frames_data if can_object_ids.count(int(obj_id)) > 1]
             errorstring=""
             for frame_name in duplicates:
-                errorstring=errorstring+"The frame ("+frame_name+") has a duplicate CanObjectId\n"
+                errorstring=errorstring+"The frame ("+frame_name+") has a duplicate CanObjectId.\n"
             return errorstring
 
         last_can_object_id = int(frames_data[-1][1])
