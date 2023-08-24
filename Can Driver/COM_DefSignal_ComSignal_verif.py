@@ -47,6 +47,7 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 'Signal Name': [signal_name],
                 'Passed?':["Signal Not Found in COM"],
                 'Frame Name': ' ',
+                'Frame Type': ' ',
                 'ComBitPosition': ' ',
                 'MessagerieBitPosition': ' ',
                 'ComBytePosition': ' ',
@@ -82,6 +83,7 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                     'Signal Name': [signal_name],
                     'Passed?':["Signal Not Found in Messagerie"],
                     'Frame Name': ' ',
+                    'Frame Type': ' ',
                     'ComBitPosition': ' ',
                     'MessagerieBitPosition': ' ',
                     'ComBytePosition': ' ',
@@ -138,16 +140,13 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 signal_init_value_excel=hex(0)
                 if signal_Rx_test:
                     signal_init_value_excel=selected_signal["CONS_INIT"].values[0]
-                    if(signal_init_value_excel=="Non applicable" or math.isnan(int(signal_init_value_excel,16))):
-                        signal_init_value_excel=hex(0)
-                    if(int(signal_init_value_excel,16)!=int(ComSignalInitValue)):
-                        ComSignalInitValuetst=False
-                    
                 else:
                     signal_init_value_excel=selected_signal["PROD_INIT"].values[0]
-                    if(signal_init_value_excel=="Non applicable" or math.isnan(int(signal_init_value_excel,16))):
-                        signal_init_value_excel=hex(0)
-                    if(int(signal_init_value_excel,16)!=int(ComSignalInitValue)):
+
+                if(signal_init_value_excel=="Non applicable" or signal_init_value_excel==" " or signal_init_value_excel==0 or math.isnan(int(signal_init_value_excel,16))):  
+                        signal_init_value_excel="Null"
+                        ComSignalInitValuetst=False
+                elif(int(signal_init_value_excel,16)!=int(ComSignalInitValue)):
                         ComSignalInitValuetst=False
 
                 
@@ -155,7 +154,7 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 if(not ComTransferProperty):
                     ComTransferProperty="Null"
                     ComTransferPropertytst=False
-                elif(signal_modetrans=="Periodique" and ComTransferProperty=="PENDING"):
+                elif(signal_modetrans=="Periodique" or signal_modetrans=="Périodique"  and ComTransferProperty=="PENDING"):
                     pass
                 elif (signal_modetrans=="Evenmentielle" and ComTransferProperty=="TRIGGERED"):
                     pass
@@ -166,26 +165,28 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 
                 if(not ComNotification):
                     ComNotification="Null"
+                    ComNotificationtst=False
                 elif(signal_Rx_test and ComNotification!="FHCAN_EveRxF"+str(frame_id)+"_AckClbk"):
                     ComNotificationtst=False
 
                 if(not ComTimeoutNotification):
                     ComTimeoutNotification="Null"  
+                    ComNotificationtst=False
                 elif(signal_Rx_test and ComTimeoutNotification!="FHCAN_EveRxF"+str(frame_id)+"_TOutClbk"):
                     ComTimeoutNotificationtst=False
 
-                signal_period_excel="Null"
-                if(not ComTimeout):
+                signal_period_excel=selected_frame["Periode_T"].values[0]
+                if(not ComTimeout or signal_period_excel=="Non applicable"):
                     ComTimeout="Null"
-                elif(signal_modetrans=="Periodique" and signal_Rx_test):
-                    signal_period_excel=selected_frame["Periode_T"].values[0]
-                    if(signal_period_excel==10 and ComTimeout==3*signal_period_excel):
+                    ComTimeouttst=False
+                elif(signal_modetrans=="Periodique" or signal_modetrans=="Périodique" and signal_Rx_test):
+                    if(signal_period_excel==10 and ComTimeout>=3*signal_period_excel):
                         pass
-                    if(signal_period_excel>=20 and signal_period_excel<=30 and ComTimeout==2*signal_period_excel):
+                    if(signal_period_excel>=20 and signal_period_excel<=30 and ComTimeout>=2*signal_period_excel):
                         pass
-                    if(signal_period_excel>=40 and signal_period_excel<=90 and ComTimeout==signal_period_excel+10):
+                    if(signal_period_excel>=40 and signal_period_excel<=90 and ComTimeout>=signal_period_excel+10):
                         pass
-                    if(signal_period_excel>=100 and ComTimeout==signal_period_excel+(signal_period_excel*10/100)):
+                    if(signal_period_excel>=100 and ComTimeout>=signal_period_excel+(signal_period_excel*10/100)):
                         pass
                     else:
                         ComTimeouttst=False
@@ -193,6 +194,7 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                     'Signal Name': [signal_name],
                     'Passed?':[" " if ComBitPositiontst == False or ComBitSizetst == False or ComSignalEndiannesstst == False or ComSignalInitValuetst == False or ComSignalTypetst == False or ComTransferPropertytst == False or ComNotificationtst == False or ComTimeoutNotificationtst == False or ComTimeouttst == False else "X"],
                     'Frame Name':[selected_frame["Radical"].values[0]],
+                    'Frame Type': ["Tx" if selected_signal["Emetteur"].str.endswith("E_VCU").any() else "Rx"],
                     'ComBitPosition':[pos_bit_com],
                     'MessagerieBitPosition':[pos_bit_excel],
                     'ComBytePosition':[pos_oct_com],
