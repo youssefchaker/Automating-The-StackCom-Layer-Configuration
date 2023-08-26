@@ -168,7 +168,7 @@ def verify_button_click():
 
 
 
-# Create the GUI
+# tkinter Interface
 root = tk.Tk()
 root.title("PDUR Routing Table Verification")
 

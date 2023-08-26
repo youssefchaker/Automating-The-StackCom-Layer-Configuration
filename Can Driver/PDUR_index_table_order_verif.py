@@ -9,7 +9,7 @@ nodes_src_Rx=['CanIf_PduRRoutingTable','PduRRoutingPath','PduRSrcPdu','PduRSourc
 nodes_dest_Tx=['Com_PduRRoutingTable','PduRRoutingPath','PduRDestPdu','PduRDestPduHandleId']
 nodes_dest_Rx=['CanIf_PduRRoutingTable','PduRRoutingPath','PduRDestPdu','PduRDestPduHandleId']
 
-
+#check order for all 4 criteras
 def check_order():
     xdm_file_path = xdm_file_entry.get()
     if not xdm_file_path:
@@ -25,6 +25,7 @@ def check_order():
     write_to_Excel(result_data,file_path,sheet_name)
     completion_label.config(text="Output Created", fg="green")
 
+#tkinter Interface
 root = tk.Tk()
 root.title("PDUR Order Checker")
 

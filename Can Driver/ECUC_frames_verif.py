@@ -73,7 +73,7 @@ def verify_button_click():
 
 
 
-# Create the GUI
+# tkinter Interface
 root = tk.Tk()
 root.title("ECUC Frame Info Verification")
 

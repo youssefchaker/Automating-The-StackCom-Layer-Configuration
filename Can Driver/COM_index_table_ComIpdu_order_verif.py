@@ -31,7 +31,7 @@ def ordered_by_TX_RX(xdm_file):
         return False
 
 
-
+#check order for all critera at once
 def check_order():
     xdm_file_path = xdm_file_entry.get()
     if not xdm_file_path:

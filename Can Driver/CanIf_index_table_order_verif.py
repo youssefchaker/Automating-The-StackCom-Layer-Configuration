@@ -3,6 +3,8 @@ from statfuncs import *
 
 sheet_name="CANIF_index_table_order_verif"
 
+
+#function to check the order
 def check_order():
     xdm_file_path = xdm_file_entry.get()
     if not xdm_file_path:
@@ -16,6 +18,7 @@ def check_order():
     completion_label.config(text="Output Created", fg="green")
 
 
+#tkinter Interface
 root = tk.Tk()
 root.title("CanIf Order Checker")
 

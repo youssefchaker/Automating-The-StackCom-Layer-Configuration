@@ -12,7 +12,6 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
 
     root_canif = etree.fromstring(canif_content)
 
-    namespace = {'d': 'http://www.tresos.de/_projects/DataModel2/06/data.xsd','a':'http://www.tresos.de/_projects/DataModel2/08/attribute.xsd' }
     selected_frame = frames_data[frames_data['Radical'] == frame_name]
     if selected_frame.empty:
         result_data = {
@@ -273,7 +272,7 @@ def verify_button_click():
 
 
 
-# Create the GUI
+# tkinter Interface
 root = tk.Tk()
 root.title("CanIf Frame CANIF/CAN/Messagerie Verification")
 

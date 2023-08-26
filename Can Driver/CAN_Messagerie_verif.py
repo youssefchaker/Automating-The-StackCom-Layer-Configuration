@@ -150,7 +150,7 @@ def verify_button_click():
 
 
 
-# Create the GUI
+# tkinter Interface
 root = tk.Tk()
 root.title("Frame Info CAN/Messagerie Verification")
 

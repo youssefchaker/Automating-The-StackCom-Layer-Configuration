@@ -115,7 +115,7 @@ def verify_button_click():
     completion_label.config(text="Output Created", fg="green")
 
 
-# Create the GUI
+# tkinter Interface
 root = tk.Tk()
 root.title("CanIf Frame Info CANIF/Messagerie Verification")
 

@@ -89,7 +89,7 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
             return False
         else:
             frames_data = cleanExcelFrameData(excel_file_path)
-            signals_data = cleanExcelSignalData(excel_file_path)
+            signals_data = getFullSignalData(excel_file_path)
             selected_frame = frames_data[frames_data['Radical'] == frame_name]
             if selected_frame.empty:
                 result_data = {
@@ -192,8 +192,8 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
                         ComTxModeModetst=False
                     if(not ComTxModeTimePeriod):
                         ComTxModeTimePeriod="Null"
-                    #if(ComTxModeTimePeriod!=selected_frame["Offset"].values[0]):
-                    ComTxModeTimePeriodtst=None#change this to False when sheet updates
+                    #if(ComTxModeTimePeriod!=selected_frame["Offset"].values[0]): #uncomment this 
+                    ComTxModeTimePeriodtst=None#change this to False
                 else:
                     ComTxModeModetst=None
                     ComTxModeTimePeriodtst=None
@@ -231,7 +231,7 @@ def verify_button_click():
     verify_frame(excel_file_path, xdm_file_path, frame_name)
     completion_label.config(text="Output Created", fg="green")
 
-# Create the GUI
+# tkinter Interface
 root = tk.Tk()
 root.title("Com Frame Info Verification in ComIPdu")
 

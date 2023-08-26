@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from openpyxl import load_workbook
+from openpyxl.styles import Alignment, Font, PatternFill
 from lxml import etree
 import tkinter as tk
 from tkinter import filedialog
@@ -20,7 +21,7 @@ expected_trame_headers = {'FRAMES': ['Checked','Radical', 'Identifiant_T', 'Tail
 def cleanExcelFrameData(excel_file):
     df = pd.read_excel(excel_file, sheet_name='FRAMES', header=None, skiprows=2)  # Skip first two rows
     df.columns = df.iloc[0]  # Use the third row as column names
-    df = df.iloc[1:]  # Drop the second row (previous header)
+    df = df.iloc[1:]  
     
     headers = [col for col in df.columns if col in expected_trame_headers['FRAMES']]
     df = df[headers]
@@ -30,26 +31,45 @@ def cleanExcelFrameData(excel_file):
     
     return df
 
+    # Function to get all the Excel data
+def getFullFrameData(excel_file):
+    df = pd.read_excel(excel_file, sheet_name='FRAMES', header=None, skiprows=2)  # Skip first two rows
+    df.columns = df.iloc[0]  # Use the third row as column names
+    df = df.iloc[1:]  
+    headers = [col for col in df.columns if col in expected_trame_headers['FRAMES']]
+    df = df[headers]
+    return df
+
 # Define expected headers for cleaning the Excel data
-expected_signal_headers = {'SIGNALS': ['Radical_T', 'Position_octet_S', 'Position_bit_S', 'Taille_Max_S', 'Mnemonique_S', 'Valeur_Min_S', 'Valeur_Max_S', 'Resolution_S', 'Offset_S','PROD_INIT','CONS_INIT' ,'Emetteur','Nécessité de sécurisation par checksum et compteur de process']}
+expected_signal_headers = {'SIGNALS': ['Checked','Radical_T', 'Position_octet_S', 'Position_bit_S', 'Taille_Max_S', 'Mnemonique_S', 'Valeur_Min_S', 'Valeur_Max_S', 'Resolution_S', 'Offset_S','PROD_INIT','CONS_INIT' ,'Emetteur','Nécessité de sécurisation par checksum et compteur de process']}
 
 # Function to clean the Excel data and keep only the necessary columns
 def cleanExcelSignalData(excel_file):
-    df = pd.read_excel(excel_file, sheet_name='SIGNALS', header=None, skiprows=2)  # Skip first two rows
-    df.columns = df.iloc[0]  # Use the third row as column names
-    df = df.iloc[1:]  # Drop the second row (previous header)
-    
+    df = pd.read_excel(excel_file, sheet_name='SIGNALS', header=None, skiprows=2)  
+    df.columns = df.iloc[0]  
+    df = df.iloc[1:]  
     headers = [col for col in df.columns if col in expected_signal_headers['SIGNALS']]
     df = df[headers]
-    
+    df = df[df['Checked'] == 'X']
     return df
 
+# Function to get all the Excel data
+def getFullSignalData(excel_file):
+    df = pd.read_excel(excel_file, sheet_name='SIGNALS', header=None, skiprows=2)  
+    df.columns = df.iloc[0]  
+    df = df.iloc[1:]  
+    headers = [col for col in df.columns if col in expected_signal_headers['SIGNALS']]
+    df = df[headers]
+    return df
+
+#display the list of the frames in the interface on excel file selection
 def display_frame_names(selected_excel_file,frame_entry):
     if selected_excel_file:
         cleaned_df = cleanExcelFrameData(selected_excel_file)
         frame_names = cleaned_df['Radical'].tolist()
         frame_entry['values'] = frame_names
 
+#display the list of the signals in the interface on excel file selection
 def display_signal_names(selected_excel_file,signal_entry):
     if selected_excel_file:
         cleaned_df = cleanExcelSignalData(selected_excel_file)
@@ -57,23 +77,42 @@ def display_signal_names(selected_excel_file,signal_entry):
         signal_names = full_names.tolist()
         signal_entry['values'] = signal_names
 
-#function responsible for writiting the output to the excel file
-def write_to_Excel(result_data, file_path,sheet_name):
+
+#write data to the output excel file
+def write_to_Excel(result_data, file_path, sheet_name):
     df = pd.DataFrame(result_data)
 
     if not os.path.exists(file_path):
-        # Create the Excel file with the specified columns
-        df.to_excel(file_path, sheet_name=sheet_name, index=False, header=True)
+        writer = pd.ExcelWriter(file_path, engine='xlsxwriter')
+        df.to_excel(writer, sheet_name=sheet_name, index=False, header=True)
+        
+        workbook = writer.book
+        worksheet = writer.sheets[sheet_name]
+        
+        # Apply formatting to header row 
+        header_format = workbook.add_format({'bg_color': '5DADE2', 'align': 'center', 'valign': 'vcenter'})
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num, value, header_format)
+            column_width = max(len(str(value)) + 2, len(df[df.columns[col_num]].astype(str).max()) + 2)
+            worksheet.set_column(col_num, col_num, column_width)
+        
+        # Apply formatting to the first column 
+        first_column_format = workbook.add_format({'bg_color': '5DADE2', 'align': 'center', 'valign': 'vcenter'})
+        worksheet.set_column(0, 0, 15)  # Set a specific width for the first column
+        for row_num in range(1, df.shape[0] + 1):
+            worksheet.write(row_num, 0, df.iloc[row_num - 1, 0], first_column_format)
+            worksheet.set_row(row_num, len(str(df.iloc[row_num - 1, 0])) * 1.5)
+        
+        df.to_excel(writer, sheet_name=sheet_name, startrow=1, startcol=0, index=False, header=False)
+        
+        writer.save()
     else:
-        # Load the existing workbook
         book = load_workbook(file_path)
         writer = pd.ExcelWriter(file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay')
         writer.book = book
 
         if sheet_name in pd.ExcelFile(file_path).sheet_names:
-            # Check if the 'Passed?' column already exists in the sheet
             sheet = book[sheet_name]
-            # Append the data to the existing sheet
             df.to_excel(writer, sheet_name=sheet_name, index=False, header=False, startrow=writer.sheets[sheet_name].max_row)
 
         else:
@@ -82,15 +121,16 @@ def write_to_Excel(result_data, file_path,sheet_name):
 
         writer.save()
 
-# function responsable for emptying the designated excel sheet
-def clear_excel(sheet_name,completion_label):
+# Function responsible for emptying the designated Excel sheet
+def clear_excel(sheet_name, completion_label):
     if os.path.exists(file_path):
         book = load_workbook(file_path)
         if sheet_name in book.sheetnames:
             sheet = book[sheet_name]
-            sheet.delete_rows(2, sheet.max_row - 1) 
+            sheet.delete_rows(2, sheet.max_row - 1)
         book.save(file_path)
-    completion_label.config(text="Output File Cleared", fg="blue")
+        completion_label.config(text="Output File Cleared", fg="blue")  
+
     
 #select the excel file from the interface
 def browse_excel_frames(excel_file_entry,frame_entry):

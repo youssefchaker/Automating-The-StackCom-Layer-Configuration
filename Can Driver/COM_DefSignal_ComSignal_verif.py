@@ -76,7 +76,7 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
             return False
         else:
             signals_data = cleanExcelSignalData(excel_file_path)
-            frames_data = cleanExcelFrameData(excel_file_path)
+            frames_data = getFullFrameData(excel_file_path)
             selected_signal = signals_data[signals_data['Mnemonique_S']+"_"+signals_data['Radical_T'] == signal_name]
             if selected_signal.empty:
                 result_data = {
@@ -143,11 +143,15 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 else:
                     signal_init_value_excel=selected_signal["PROD_INIT"].values[0]
 
-                if(signal_init_value_excel=="Non applicable" or signal_init_value_excel==" " or signal_init_value_excel==0 or math.isnan(int(signal_init_value_excel,16))):  
+                if(signal_init_value_excel=="Non applicable" or signal_init_value_excel==" " or signal_init_value_excel=='Null'):  
                         signal_init_value_excel="Null"
                         ComSignalInitValuetst=False
+                elif(signal_init_value_excel==0 or signal_init_value_excel=="0"):
+                    signal_init_value_excel=hex(0)
                 elif(int(signal_init_value_excel,16)!=int(ComSignalInitValue)):
                         ComSignalInitValuetst=False
+                else:
+                    signal_init_value_excel=int(signal_init_value_excel,16)
 
                 
                 signal_modetrans=selected_frame["Mode_Transmission_T"].values[0]
@@ -205,7 +209,7 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                     'ComBitSize/MessagerieBitSize Errors':["Error(Signal Size Mismatch)" if ComBitSizetst==False else 'None'],
                     'ComSignalEndianness':["Error(ComSignalEndianness is not of the value 'BIG_ENDIAN')" if ComSignalEndiannesstst==False else ComSignalEndianness],
                     'ComSignalInitValue':[ComSignalInitValue],
-                    'MessagerieSignalInitValue':[int(signal_init_value_excel,16)],
+                    'MessagerieSignalInitValue':[signal_init_value_excel],
                     'ComSignalInitValue/MessagerieSignalInitValue Errors':["Error(Signal Init Value Mismatch)" if ComSignalInitValuetst==False else "None"],
                     'ComSignalType':[ComSignalType],
                     'MessagerieSignalType':[signal_type_excel],
@@ -234,7 +238,7 @@ def verify_button_click():
     verify_signal(excel_file_path, xdm_file_path, signal_name)
     completion_label.config(text="Output Created", fg="green")
 
-# Create the GUI
+# tkinter Interface
 root = tk.Tk()
 root.title("Com Signal Info Verification in ComSignal")
 
