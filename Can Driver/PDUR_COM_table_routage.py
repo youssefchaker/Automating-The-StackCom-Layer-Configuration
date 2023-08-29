@@ -138,7 +138,7 @@ def verify_frame(excel_file_path,xdm_file_path, frame_name):
 
             result_data = {
                 'Frame Name': [frame_name],
-                'Passed?':[" " if PduRSrcPdutst == False or PduRSrcBswModuleReftst == False or PduRSrcPduReftst == False or PduRSrcPduUpTxConftst == False or PduRTransmissionConfirmationtst == False or PduRDestPduDataProvisiontst == False or PduRDestBswModuleReftst == False or PduRDestPduReftst == False else "X"],
+                'Passed?':["NOK" if PduRSrcPdutst == False or PduRSrcBswModuleReftst == False or PduRSrcPduReftst == False or PduRSrcPduUpTxConftst == False or PduRTransmissionConfirmationtst == False or PduRDestPduDataProvisiontst == False or PduRDestBswModuleReftst == False or PduRDestPduReftst == False else "OK"],
                 'Frame Type':[frame_type],
                 'PduRSrcPdu':[PduRSrcPdu if PduRSrcPdutst else "Error(PduRSrcPdu is not "+frame_name+"_Src"+")"],
                 'PduRSrcPduUpTxConf':[PduRSrcPduUpTxConf if PduRSrcPduUpTxConftst else "Error(PduRSrcPduUpTxConf is not of the value 'true'"],

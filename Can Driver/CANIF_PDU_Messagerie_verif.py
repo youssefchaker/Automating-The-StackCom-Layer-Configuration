@@ -88,7 +88,7 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
                 CanIfIdSymReftst=False
             result_data = {
                 'Frame Name': [frame_name],
-                'Passed?':[" " if CanIfCanCtrlIdReftst ==False or CanIfIdSymReftst==False or CanIfCanHandleTypeReftst==False else "X"],
+                'Passed?':["NOK" if CanIfCanCtrlIdReftst ==False or CanIfIdSymReftst==False or CanIfCanHandleTypeReftst==False else "OK"],
                 'Frame type':["TRANSMIT" if selected_frame["UCE Emetteur"].str.endswith("E_VCU").any() else "RECEIVE" ],
                 'CanIfCanCtrlIdRef':[CanIfCanCtrlIdRef],
                 'AEE10r3 Reseau_T': [selected_frame["AEE10r3 Reseau_T"].values[0]],

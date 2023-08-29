@@ -15,7 +15,7 @@ def check_order():
     if not xdm_file_path:
         return
     result_data = {
-        'Passed?':["X" if ordered_by_id_PDUR(xdm_file_path,nodes_src_Tx)==True and ordered_by_id_PDUR(xdm_file_path,nodes_dest_Tx)==True and ordered_by_id_PDUR(xdm_file_path,nodes_src_Rx)==True and ordered_by_id_PDUR(xdm_file_path,nodes_dest_Rx)==True else " "],
+        'Passed?':["OK" if ordered_by_id_PDUR(xdm_file_path,nodes_src_Tx)==True and ordered_by_id_PDUR(xdm_file_path,nodes_dest_Tx)==True and ordered_by_id_PDUR(xdm_file_path,nodes_src_Rx)==True and ordered_by_id_PDUR(xdm_file_path,nodes_dest_Rx)==True else "NOK"],
         'Order by Tx_PduRSourcePduHandleId':["None" if ordered_by_id_PDUR(xdm_file_path,nodes_src_Tx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_src_Tx)],
         'Order by Tx_PduRDestPduHandleId':["None" if ordered_by_id_PDUR(xdm_file_path,nodes_dest_Tx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_dest_Tx)],
         'Order by Rx_PduRSourcePduHandleId':["None" if ordered_by_id_PDUR(xdm_file_path,nodes_src_Rx)==True else ordered_by_id_PDUR(xdm_file_path,nodes_src_Rx)],

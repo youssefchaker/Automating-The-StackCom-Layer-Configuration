@@ -10,7 +10,7 @@ def check_order():
     if not xdm_file_path:
         return
     result_data = {
-        'Passed?':["X" if ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')==ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg') else " "],
+        'Passed?':["OK" if ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')==ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg') else "NOK"],
         'Order by CanIfRxPduId':["None" if ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg')==True else ordered_by_id_CanIf(xdm_file_path,'CanIfRxPduId','CanIfRxPduCfg')],
         'Order by CanIfTxPduId':["None" if ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')==True else ordered_by_id_CanIf(xdm_file_path,'CanIfTxPduId','CanIfTxPduCfg')]
      }

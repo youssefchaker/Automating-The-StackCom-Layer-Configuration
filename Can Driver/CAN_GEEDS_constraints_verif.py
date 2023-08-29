@@ -27,7 +27,7 @@ def ordered_by_RX_TX(xdm_file):
         return True
 
     except Exception as e:
-        print(f"Error occurred while processing the XDM file: {e}")
+        print(f"Error occurred : {e}")
         return False
 
 #Ordering by Cancontrollerref check
@@ -71,7 +71,7 @@ def ordered_by_CAN_Ref(xdm_file):
             return True
 
     except Exception as e:
-        print(f"Error occurred while processing the XDM file: {e}")
+        print(f"Error occurred : {e}")
         return False
 
 
@@ -111,7 +111,7 @@ def ordered_by_id(xdm_file):
         return True
 
     except Exception as e:
-        print(f"Error occurred while processing the XDM file: {e}")
+        print(f"Error occurred : {e}")
         return False
 
 #check all 3 tests at once 
@@ -120,7 +120,7 @@ def check_all():
     if not xdm_file_path:
         return
     result_data = {
-        'Passed?':["X" if ordered_by_CAN_Ref(xdm_file_path)==ordered_by_id(xdm_file_path)==ordered_by_RX_TX(xdm_file_path) else " "],
+        'Passed?':["OK" if ordered_by_CAN_Ref(xdm_file_path)==ordered_by_id(xdm_file_path)==ordered_by_RX_TX(xdm_file_path) else "NOK"],
         'Order by RX_TX Errors':["None" if ordered_by_RX_TX(xdm_file_path)==True else ordered_by_RX_TX(xdm_file_path)],
         'Order by CanControllerRef Errors':["None" if ordered_by_CAN_Ref(xdm_file_path)==True else ordered_by_CAN_Ref(xdm_file_path)],
         'Order by CanObjectId Errors':["None" if ordered_by_id(xdm_file_path)==True else ordered_by_id(xdm_file_path)]

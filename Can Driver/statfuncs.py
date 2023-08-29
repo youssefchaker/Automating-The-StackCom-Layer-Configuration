@@ -186,7 +186,7 @@ def ordered_by_id_CanIf(xdm_file,order_var,parent):
             duplicates = [frame_name for frame_name, Id in frames_data if Ids.count(int(Id)) > 1]
             errorstring=""
             for frame_name in duplicates:
-                errorstring=errorstring+" "+"The frame ("+frame_name+") has a duplicate ("+order_var+").\n"
+                errorstring=errorstring+' '+"The frame ("+frame_name+") has a duplicate ("+order_var+").\n"
             return errorstring
 
         Last_Id = int(frames_data[-1][1])
@@ -276,7 +276,7 @@ def ordered_by_id_COM(xdm_file,order_var,parent):
             duplicates = [name for name, Id in data if Ids.count(int(Id)) > 1]
             errorstring=""
             for name in duplicates:
-                errorstring=errorstring+" "+"The "+data_type+" ("+name+") has a duplicate ("+order_var+").\n"
+                errorstring=errorstring+' '+"The "+data_type+" ("+name+") has a duplicate ("+order_var+").\n"
             return errorstring
 
         Last_Id = int(data[-1][1])

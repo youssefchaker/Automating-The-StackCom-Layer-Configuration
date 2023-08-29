@@ -52,7 +52,7 @@ def verify_frame(excel_file_path, xdm_file_path, frame_name):
 
                 result_data = {
                     'Frame Name': [frame_name],
-                    'Passed?':[" " if PduLengthtst==False else "X"],
+                    'Passed?':["NOK" if PduLengthtst==False else "OK"],
                     'PduLength':[PduLength],
                     'frame_size':[frame_size],
                     'PduLength/frame_size':["Error(Frame Size Mismatch)" if PduLengthtst==False else "None"]

@@ -143,7 +143,7 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                 else:
                     signal_init_value_excel=selected_signal["PROD_INIT"].values[0]
 
-                if(signal_init_value_excel=="Non applicable" or signal_init_value_excel==" " or signal_init_value_excel=='Null'):  
+                if(signal_init_value_excel=="Non applicable" or signal_init_value_excel==' ' or signal_init_value_excel=='Null'):  
                         signal_init_value_excel="Null"
                         ComSignalInitValuetst=False
                 elif(signal_init_value_excel==0 or signal_init_value_excel=="0"):
@@ -196,7 +196,7 @@ def verify_signal(excel_file_path,xdm_file_path, signal_name):
                         ComTimeouttst=False
                 result_data = {
                     'Signal Name': [signal_name],
-                    'Passed?':[" " if ComBitPositiontst == False or ComBitSizetst == False or ComSignalEndiannesstst == False or ComSignalInitValuetst == False or ComSignalTypetst == False or ComTransferPropertytst == False or ComNotificationtst == False or ComTimeoutNotificationtst == False or ComTimeouttst == False else "X"],
+                    'Passed?':["NOK" if ComBitPositiontst == False or ComBitSizetst == False or ComSignalEndiannesstst == False or ComSignalInitValuetst == False or ComSignalTypetst == False or ComTransferPropertytst == False or ComNotificationtst == False or ComTimeoutNotificationtst == False or ComTimeouttst == False else "OK"],
                     'Frame Name':[selected_frame["Radical"].values[0]],
                     'Frame Type': ["Tx" if selected_signal["Emetteur"].str.endswith("E_VCU").any() else "Rx"],
                     'ComBitPosition':[pos_bit_com],

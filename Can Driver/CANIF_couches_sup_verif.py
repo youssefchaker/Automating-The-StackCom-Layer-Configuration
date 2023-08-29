@@ -4,7 +4,7 @@ from statfuncs import *
 sheet_name="CANIF_couches_sup_verif"
 
 # Function to extract necessary attributes for the target frame from the .xdm file
-def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_path):
+def extract_CanifValues(canif_file_path, frame_name,excel_file_path):
     with open(canif_file_path, 'r') as file:
         canif_content = file.read()
     
@@ -19,8 +19,8 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
                     'Passed?':["Frame Not Found in Messagerie"],
                     'Frame type':' ',
                     'CanIfRxPduCanId_CanIfTxPduCanId':' ',
-                    'CanIdValue':' ',
-                    'CanIfRxPduCanId_CanIfTxPduCanId/CanIdValue Errors':' ',
+                    'Identifiant_t':' ',
+                    'CanIfRxPduCanId_CanIfTxPduCanId/Identifiant_t Errors':' ',
                     'CanIfRxPduCanIdType_CanIfTxPduCanIdType':' ',
                     'CanIfRxPduRef_CanIfTxPduRef':' ',
                     'CanIfRxPduHrhIdRef_CanIfTxPduHthIdRef':' ',
@@ -82,28 +82,10 @@ def extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_pat
                 CanIfPduCanId= CanIfPduCanIdType=CanIfPduRef=CanIfPduIdRef=CanIfPduReadNotifyStatus=CanIfTxPduPnFilterPdu=CanIfTxPduType=CanIfTxPduUserTxConfirmationName=CanIfTxPduUserTxConfirmationUL= None
             return CanIfPduCanId, CanIfPduCanIdType,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL
         
-        
 
-# Function to extract necessary attributes for the target frame from the .xdm file
-def extract_CanValues(can_file_path, frame_name):
-
-    with open(can_file_path, 'r') as file:
-        can_content = file.read()
-
-    root_can = etree.fromstring(can_content)
-
-    ctr_elements = root_can.xpath(".//d:lst[@name='CanHardwareObject']/d:ctr[contains(@name, $name)]", namespaces=namespace, name=frame_name)
-    if ctr_elements:
-        CanIdValue = int(ctr_elements[0].xpath("d:var[@name='CanIdValue']/@value", namespaces=namespace)[0])
-    else:
-        CanIdValue= None
-
-    return CanIdValue
-
-def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
+def verify_frame(excel_file_path, canif_file_path, frame_name):
     try:
-        CanIdValue=extract_CanValues(can_file_path,frame_name)
-        CanIfPduCanId, CanIfPduCanIdType,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL = extract_CanifValues(canif_file_path,can_file_path, frame_name,excel_file_path)
+        CanIfPduCanId, CanIfPduCanIdType,CanIfPduRef,CanIfPduIdRef,CanIfPduReadNotifyStatus,CanIfRxPduReadData,CanIfRxPduDlc,CanIfRxPduUserRxIndicationName,CanIfRxPduUserRxIndicationUL,CanIfTxPduPnFilterPdu,CanIfTxPduType ,CanIfTxPduUserTxConfirmationName ,CanIfTxPduUserTxConfirmationUL = extract_CanifValues(canif_file_path, frame_name,excel_file_path)
         if CanIfPduCanId== -1:
             return False
         elif CanIfPduCanId is None and CanIfPduCanIdType is None and CanIfPduRef is None and CanIfPduIdRef is None and CanIfPduReadNotifyStatus is None :
@@ -112,34 +94,8 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
                     'Passed?':["Frame Not Found in CANIF"],
                     'Frame type':' ',
                     'CanIfRxPduCanId_CanIfTxPduCanId':' ',
-                    'CanIdValue':' ',
-                    'CanIfRxPduCanId_CanIfTxPduCanId/CanIdValue Errors':' ',
-                    'CanIfRxPduCanIdType_CanIfTxPduCanIdType':' ',
-                    'CanIfRxPduRef_CanIfTxPduRef':' ',
-                    'CanIfRxPduHrhIdRef_CanIfTxPduHthIdRef':' ',
-                    'CanIfRxPduReadNotifyStatus_CanIfTxPduReadNotifyStatus':' ',
-                    'CanIfRxPduReadData':' ',
-                    'CanIfRxPduDlc':' ',
-                    'Frame Size':' ',
-                    'CanIfRxPduDlc/Frame Size Errors':' ',
-                    'CanIfRxPduUserRxIndicationName':' ',
-                    'CanIfRxPduUserRxIndicationUL':' ',
-                    'CanIfTxPduPnFilterPdu':' ',
-                    'CanIfTxPduType':' ',
-                    'CanIfTxPduUserTxConfirmationName':' ',
-                    'CanIfTxPduUserTxConfirmationUL':' '
-            }
-            write_to_Excel(result_data,file_path,sheet_name)
-            return False
-
-        elif (CanIdValue is None):
-            result_data = {
-                    'Frame Name': [frame_name],
-                    'Passed?':["Frame Not Found in CAN"],
-                    'Frame type':' ',
-                    'CanIfRxPduCanId_CanIfTxPduCanId':' ',
-                    'CanIdValue':' ',
-                    'CanIfRxPduCanId_CanIfTxPduCanId/CanIdValue Errors':' ',
+                    'Identifiant_t':' ',
+                    'CanIfRxPduCanId_CanIfTxPduCanId/Identifiant_t Errors':' ',
                     'CanIfRxPduCanIdType_CanIfTxPduCanIdType':' ',
                     'CanIfRxPduRef_CanIfTxPduRef':' ',
                     'CanIfRxPduHrhIdRef_CanIfTxPduHthIdRef':' ',
@@ -163,8 +119,10 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
 
             frames_data = cleanExcelFrameData(excel_file_path)
             selected_frame = frames_data[frames_data['Radical'] == frame_name]
+            identifiant_t_hex = selected_frame["Identifiant_T"].values[0]
+            identifiant_t_decimal = int(identifiant_t_hex, 16)
 
-            if(CanIfPduCanId!=CanIdValue):
+            if(CanIfPduCanId!=identifiant_t_decimal):
                 CanIfPduCanIdtst=False
 
             if(CanIfPduCanIdType!="STANDARD_CAN"):
@@ -216,11 +174,11 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
                 
             result_data = {
                     'Frame Name': [frame_name],
-                    'Passed?':["X" if (CanIfPduCanIdtst==True and CanIfPduCanIdTypetst==True and CanIfPduReftst==True and CanIfPduIdReftst==True and CanIfPduReadNotifyStatustst==True) and ((CanIfRxPduReadDatatst==True and CanIfRxPduDlctst==True and CanIfRxPduUserRxIndicationNametst==True and CanIfRxPduUserRxIndicationULtst==True) or (CanIfTxPduPnFilterPdutst==True and CanIfTxPduTypetst==True and CanIfTxPduUserTxConfirmationNametst==True and CanIfTxPduUserTxConfirmationULtst==True)) else " "],
+                    'Passed?':["OK" if (CanIfPduCanIdtst==True and CanIfPduCanIdTypetst==True and CanIfPduReftst==True and CanIfPduIdReftst==True and CanIfPduReadNotifyStatustst==True) and ((CanIfRxPduReadDatatst==True and CanIfRxPduDlctst==True and CanIfRxPduUserRxIndicationNametst==True and CanIfRxPduUserRxIndicationULtst==True) or (CanIfTxPduPnFilterPdutst==True and CanIfTxPduTypetst==True and CanIfTxPduUserTxConfirmationNametst==True and CanIfTxPduUserTxConfirmationULtst==True)) else "NOK"],
                     'Frame type':["TRANSMIT" if selected_frame["UCE Emetteur"].str.endswith("E_VCU").any() else "RECEIVE" ],
                     'CanIfRxPduCanId_CanIfTxPduCanId':[CanIfPduCanId],
-                    'CanIdValue':[CanIdValue],
-                    'CanIfRxPduCanId_CanIfTxPduCanId/CanIdValue Errors':["Error(ID Mismatch)" if CanIfPduCanIdtst==False else "None"],
+                    'Identifiant_t':[identifiant_t_decimal],
+                    'CanIfRxPduCanId_CanIfTxPduCanId/Identifiant_t Errors':["Error(ID Mismatch)" if CanIfPduCanIdtst==False else "None"],
                     'CanIfRxPduCanIdType_CanIfTxPduCanIdType':["Error(CanIfPduCanIdType is not STANDARD_CAN)" if CanIfPduCanIdTypetst==False else "STANDARD_CAN" ],
                     'CanIfRxPduRef_CanIfTxPduRef':["Error(Frame Name not present in CanIfPduRef)" if CanIfPduReftst==False else CanIfPduRef],
                     'CanIfRxPduHrhIdRef_CanIfTxPduHthIdRef': ["Error(Frame Name not present in CanIfPduIdRef)" if CanIfPduIdReftst==False else CanIfPduIdRef],
@@ -243,33 +201,14 @@ def verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name):
                 print(f"Error occurred : {e}")
                 return False
 
-#select the can file from the interface
-def browse_canif():
-    canif_file_path = filedialog.askopenfilename(filetypes=[("XDM files", "*.xdm")])
-    if not canif_file_path:
-        return
-    canif_file_entry.delete(0, tk.END)
-    canif_file_entry.insert(tk.END, canif_file_path)
-
-#select the canif file from the interface
-def browse_can():
-    can_file_path = filedialog.askopenfilename(filetypes=[("XDM files", "*.xdm")])
-    if not can_file_path:
-        return
-    can_file_entry.delete(0, tk.END)
-    can_file_entry.insert(tk.END, can_file_path)
-
-
 #execute functionality on button click
 def verify_button_click():
     excel_file_path = excel_file_entry.get()
-    canif_file_path = canif_file_entry.get()
-    can_file_path = can_file_entry.get()
+    xdm_file_path = xdm_file_entry.get()
     frame_name = frame_entry.get()
 
-    verify_frame(excel_file_path, canif_file_path,can_file_path, frame_name)
+    verify_frame(excel_file_path, xdm_file_path, frame_name)
     completion_label.config(text="Output Created", fg="green")
-
 
 
 # tkinter Interface
@@ -294,23 +233,14 @@ frame_entry.grid(row=3, column=1, padx=5, pady=5)
 excel_file_button = tk.Button(frame, text="Browse", command=lambda:browse_excel_frames(excel_file_entry,frame_entry))
 excel_file_button.grid(row=0, column=2, padx=5, pady=5)
 
-canif_file_label = tk.Label(frame, text="Select Canif File:")
-canif_file_label.grid(row=1, column=0, padx=5, pady=5)
+xdm_file_label = tk.Label(frame, text="Select Canif File:")
+xdm_file_label.grid(row=1, column=0, padx=5, pady=5)
 
-canif_file_entry = tk.Entry(frame)
-canif_file_entry.grid(row=1, column=1, padx=5, pady=5)
+xdm_file_entry = tk.Entry(frame)
+xdm_file_entry.grid(row=1, column=1, padx=5, pady=5)
 
-canif_file_button = tk.Button(frame, text="Browse", command=browse_canif)
-canif_file_button.grid(row=1, column=2, padx=5, pady=5)
-
-can_file_label = tk.Label(frame, text="Select Can File:")
-can_file_label.grid(row=2, column=0, padx=5, pady=5)
-
-can_file_entry = tk.Entry(frame)
-can_file_entry.grid(row=2, column=1, padx=5, pady=5)
-
-can_file_button = tk.Button(frame, text="Browse", command=browse_can)
-can_file_button.grid(row=2, column=2, padx=5, pady=5)
+xdm_file_button = tk.Button(frame, text="Browse", command=lambda:browse_xdm(xdm_file_entry))
+xdm_file_button.grid(row=1, column=2, padx=5, pady=5)
 
 verify_button = tk.Button(frame, text="Verify", command=verify_button_click)
 verify_button.grid(row=4, column=0, columnspan=3, padx=5, pady=5)
